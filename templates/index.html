@@ -52,7 +52,7 @@
         nextParticle = new NextParticle({
           image: document.all.logo,
           addTimestamp: true,
-          width: window.innerWidth,
+          width: window.innerWidth*0.9,
           height: window.innerHeight*0.2,
           x: -20,
           initPosition: 'none',
@@ -61,7 +61,7 @@
 
 
         window.onresize = function() {
-          nextParticle.width = window.innerWidth;
+          nextParticle.width = window.innerWidth*0.9;
           nextParticle.height = window.innerHeight*0.2;
           nextParticle.start();
         };
