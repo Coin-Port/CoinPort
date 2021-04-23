@@ -1,17 +1,10 @@
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
-#from flask_wtf import FlaskForm
-#from wtforms import StringField
-#from wtforms.validators import DataRequired, Length
-#from forms import RegistrationForm
+
 
 app=Flask(__name__)
 app.config['SECRET_KEY'] = '98073e958b9c236b3fa0d714c68a2e6c'
 
-
-#class RegistrationForm(FlaskForm):
-#    Symbol1 = StringField('Symbol1', validators=[DataRequired(), Length(min=1, max=5)])
-#    Symbol2 = StringField('Symbol2', validators=[DataRequired(), Length(min=1, max=5)])
 
 @app.route('/', methods=['GET','POST'])
 def index():

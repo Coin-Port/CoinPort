@@ -62,16 +62,16 @@
           nextParticle = new NextParticle({
             image: document.all.logo,
             addTimestamp: true,
-            width: window.innerWidth * 0.91,
-            height: window.innerHeight * 0.21,
+            width: Math.round(window.innerWidth * 0.91),
+            height: Math.round(window.innerHeight * 0.21),
             initPosition: 'none',
             initDirection: 'none',
           });
 
 
           window.onresize = function() {
-            nextParticle.width = window.innerWidth * 0.91;
-            nextParticle.height = window.innerHeight * 0.21;
+            nextParticle.width = Math.round(window.innerWidth * 0.91);
+            nextParticle.height = Math.round(window.innerHeight * 0.21);
             nextParticle.start();
           };
         </script>
