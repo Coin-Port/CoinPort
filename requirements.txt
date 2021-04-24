@@ -10,3 +10,4 @@ WTForms==2.3.3
 flask-bootstrap
 flask-nav
 flask-debug
+requests
