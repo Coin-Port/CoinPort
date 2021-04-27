@@ -8,12 +8,12 @@ address = input('address: ')
 zapper_api_key = '96e0cc51-a62e-42ca-acee-910ea7d2a241' # public use API key
 ethscan_api_key = 'JBD58KU8MHIJ374AX3J1ICHX4F64YAKMAD'
 
-'''def get_tokens(address): # current tokens owned by user
+def get_tokens(address): # current tokens owned by user
     with request.urlopen('https://api.zapper.fi/v1/balances/tokens?addresses[]=%s&api_key=%s' % (address, zapper_api_key)) as url:
         data = json.loads(url.read().decode())
-        return data'''
+        return data
 
-'''def get_transactions_deprec(address): # historical transactions
+def get_transactions(address): # historical transactions
     with request.urlopen('https://api.zapper.fi/v1/transactions/%s?api_key=%s' % (address, zapper_api_key)) as url: # historical transactions from zapper
         zapper_data = json.loads(url.read().decode())[::-1] # originally reverse chronological
     print(zapper_data)
@@ -67,31 +67,9 @@ ethscan_api_key = 'JBD58KU8MHIJ374AX3J1ICHX4F64YAKMAD'
         data[txn['hash']]['gas'] = float(txn['gas'])
         data[txn['hash']]['onZapper'] = True
 
-    return data'''
+    return data
 
-def get_transactions(address): # historical transactions
-    with request.urlopen('https://api.zapper.fi/v1/transactions/%s?api_key=%s' % (address, zapper_api_key)) as url: # historical transactions from zapper
-        zapper_data = json.loads(url.read().decode())
-
-    txn_hashes = list() # A list of dictionaries, where each dictionary contains:
-                        # "symbol" : symbol of currency
-                        # "amount" : amount added or subtracted in this transaction, can be negative
-                        # "value" : value of this currency in USD (add support for others later)
-
-    for txn in zapper_data:
-        totalGain = 0
-        if (txn["txSuccessful"]):
-            for sub_transaction in txn["subTransactions"]:
-                if (sub_transaction["type"] == "incoming"):
-                    totalGain += sub_transaction["amount"]
-                elif (sub_transaction["type"] == "outgoing"):
-                    totalGain -= sub_transaction["amount"]
-        if (txn["direction"] == "outgoing"): totalGain -= txn["gas"]
-        txn_hashes.append({"symbol" : txn["symbol"], "amount" : totalGain, "value" : 0})
-
-    return txn_hashes
-
-'''def get_balance_deprec(transactions: dict, time: int) -> dict:
+def get_balance(transactions: dict, time: int) -> dict:
     user_bal = {'ETH': 0}
 
     for txn_hash in transactions:
@@ -127,17 +105,9 @@ def get_transactions(address): # historical transactions
 
         #print(user_bal)
         #print('')
-    return user_bal'''
+    return user_bal
 
-def get_balance(address: str) -> dict:
-    with request.urlopen('https://api.zapper.fi/v1/balances/tokens?addresses[]=%s&api_key=%s' % (address, zapper_api_key)) as url:
-        data = json.loads(url.read().decode())
-    data = data[address.lower()]
-    print(data)
-    balances = dict() #dict that pairs coin symbol to its balance
-    for token in data:
-        balances[token["symbol"]] = token["balance"]
-    return balances
+#print(get_tokens(address))
 
 my_eth = 0
 
@@ -147,12 +117,10 @@ my_transactions = get_transactions(address)
 
 print('found', len(my_transactions), 'transactions \n')
 
-print(my_transactions)
+#print(my_transactions)
 
-my_balance = get_balance(address)
-print(my_balance["ETH"])
+my_balance = get_balance(my_transactions, time.time())
 
-total = 0
-for txn in my_transactions:
-    total += txn["amount"]
-print(total)
+#for i in my_transactions: print(i)
+print('')
+print(my_balance)
