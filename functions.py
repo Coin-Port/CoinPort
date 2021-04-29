@@ -76,8 +76,8 @@ def get_transactions_w_ethscan(address): # historical transactions, with ethscan
 
     return data
 
-'''
-def get_balance(transactions: dict, time: int) -> dict:
+
+def get_balance_w_ethscan(transactions: dict, time: int) -> dict: # another function that will likely be unused but this is back up in the case that Zapper is unable to fix the missing transactions
     user_bal = {'ETH': 0}
 
     for txn_hash in transactions:
@@ -114,7 +114,6 @@ def get_balance(transactions: dict, time: int) -> dict:
         #print(user_bal)
         #print('')
     return user_bal
-'''
 
 def get_curr_balance(address: str) -> dict:
     with request.urlopen('https://api.zapper.fi/v1/balances/tokens?addresses[]=%s&api_key=%s' % (address, zapper_api_key)) as url:
@@ -126,40 +125,126 @@ def get_curr_balance(address: str) -> dict:
         balances[token["symbol"]] = token["balance"]
     return balances
 
+def get_curr_balance_eth(address: str) -> dict:
+    with request.urlopen('https://api.zapper.fi/v1/balances/tokens?addresses[]=%s&api_key=%s' % (address, zapper_api_key)) as url:
+        data = json.loads(url.read().decode())
+    data = data[address.lower()]
+    for token in data:
+        if token['symbol'] == 'ETH': return {'ETH': token['balance']} # only ETH balance
+
 def get_transactions(address: str) -> list:
     with request.urlopen('https://api.zapper.fi/v1/transactions/%s?api_key=%s' % (address, zapper_api_key)) as url: # historical transactions from zapper
         data = json.loads(url.read().decode())
     return data
 
+def revert_txns(transactions: list, balance: dict, end: int, txn_index: int) -> (int, dict): # returns new txn_index and balance
+    # reverts transactions from present until 'end', transactions are given reverse chronologically
+    balance = balance.copy() #make a copy of balance to not modify original, but i think either could work
+    while int(transactions[txn_index]['timeStamp']) >= end: # the balances would be the same if no transactions take place between the two times
+        txn = transactions[txn_index]
+        if txn['direction'] == 'exchange' or txn['direction'] == 'outgoing':
+            balance['ETH'] += txn['gas'] # add gas since we're reverting
+        if txn['txSuccessful']:
+            for sub_txn in txn['subTransactions']:
+                coin = sub_txn['symbol']
+                amount = float(sub_txn['amount'])
+                if sub_txn['type'] == 'outgoing':
+                    if coin in balance:
+                        balance[coin] += amount
+                    else:
+                        balance[coin] = amount
+                elif sub_txn['type'] == 'incoming':
+                    if coin in balance:
+                        balance[coin] -= amount
+                    else:
+                        balance[coin] = 0 # for some reason sometimes coins that show up in transactions dont show up on balances
+        txn_index += 1
+    return (txn_index, balance)
+
+# functions with _eth at the end are ETH only and don't support tokens
+# this was made because of some quirks with the Zapper APIs which don't allow us to support tokens yet
+def revert_txns_eth(transactions: list, balance: dict, end: int, txn_index: int) -> (int, dict): # returns new txn_index and balance
+    # reverts transactions from present until 'end', transactions are given reverse chronologically
+    balance = balance.copy() #make a copy of balance to not modify original, but i think either could work
+    while int(transactions[txn_index]['timeStamp']) >= end: # the balances would be the same if no transactions take place between the two times
+        txn = transactions[txn_index]
+        if txn['direction'] == 'exchange' or txn['direction'] == 'outgoing':
+            balance['ETH'] += txn['gas'] # add gas since we're reverting
+        if txn['txSuccessful']:
+            for sub_txn in txn['subTransactions']:
+                amount = float(sub_txn['amount'])
+                if sub_txn['symbol'] == 'ETH':
+                    if sub_txn['type'] == 'outgoing':
+                        if 'ETH' in balance:
+                            balance['ETH'] += amount
+                        else:
+                            balance['ETH'] = amount
+                    elif sub_txn['type'] == 'incoming':
+                        if 'ETH' in balance:
+                            balance['ETH'] -= amount
+                        else:
+                            balance['ETH'] = 0
+        txn_index += 1
+        if txn_index >= len(transactions): return (txn_index, balance)
+    return (txn_index, balance)
+
 def get_historical_balance(address: str, transactions: list, start: int, end: int) -> dict:
     balance = get_curr_balance(address)
     historical_balance = {}
     txn_index = 0
-    
-    if end - start <= 5184000: # 60 days or less
-        interval = 3600 # hourly intervals
-    elif end - start <= 86400: # 1 day or less
+
+    # using time.time(), a float may be passed in so this is just a precaution
+    end = int(end) 
+    start = int(start)
+
+    if end - start <= 86400: # 1 day or less
         interval = 60 # minutely intervals
+    elif end - start <= 5184000: # 60 days or less
+        interval = 3600 # hourly intervals    
     else: # more than 60 days
         interval = 86400 # daily intervals
 
-    historical_balance[end] = balance
+    reverted = revert_txns(transactions, balance, end, 0) # revert transactions until we reach the end of our interval from the present
+    txn_index, historical_balance[end] = reverted[0], reverted[1]
 
-    while int(transcations[txn_index]['timeStamp']) >= end: # go through all transactions between now and the end of our time interval
-        txn = transactions[txn_index]
-        if txn['direction'] == 'exchange' or txn['direction'] == 'outgoing':
+    for time in range(end - interval, start - interval - 1, -interval): # reverse chronological in variable interval
+        historical_balance[time] = historical_balance[time + interval] # current balance is temporarily equivalent to prior balance
+        reverted = revert_txns(transactions, historical_balance[time], time, txn_index)
+        txn_index, historical_balance[time] = reverted[0], reverted[1]
+    
+    return historical_balance
 
+def get_historical_balance_eth(address: str, transactions: list, start: int, end: int) -> dict:
+    balance = get_curr_balance_eth(address)
+    historical_balance = {}
+    txn_index = 0
 
-    for time in range(end - interval, start - 1, -interval): # reverse chronological in variable interval
-        historical_balance[time] = historical_balance[time - interval] # current balance is temporarily equivalent to prior balance
-        # the balances would be the same if no transactions take place between the two times
-        while int(transactions[txn_index]['timeStamp']) >= time: # go through all transactions between current and prior time interval
-            txn = transactions[txn_index]
-            if txn['direction'] == 'exchange' or txn['direction'] == 'outgoing':
-                
-            txn_index += 1
+    # using time.time(), a float may be passed in so this is just a precaution
+    end = int(end) 
+    start = int(start)
 
+    if end - start <= 86400: # 1 day or less
+        interval = 60 # minutely intervals
+    elif end - start <= 5184000: # 60 days or less
+        interval = 3600 # hourly intervals    
+    else: # more than 60 days
+        interval = 86400 # daily intervals
 
+    reverted = revert_txns_eth(transactions, balance, end, 0) # revert transactions until we reach the end of our interval from the present
+    txn_index, historical_balance[end] = reverted[0], reverted[1]
+
+    for time in range(end - interval, start - interval - 1, -interval): # reverse chronological in variable interval
+        historical_balance[time] = historical_balance[time + interval].copy() # current balance is temporarily equivalent to prior balance
+        reverted = revert_txns_eth(transactions, historical_balance[time], time, txn_index)
+        txn_index, historical_balance[time] = reverted[0], reverted[1]
+    
+    return historical_balance
+
+def get_historical_fiat_worth(historical_balance: dict, start: int, end: int) -> dict:
+    pass
+
+def get_daily_avg_pnl(hist_fiat_balance: dict, start: int, end: int) -> dict:
+    pass
 
 #print(get_tokens(address))
 
@@ -169,10 +254,16 @@ my_transactions = get_transactions(address)
 
 #print(my_transactions)
 
-#print('found', len(my_transactions), 'transactions \n')
+print('found', len(my_transactions), 'transactions \n')
 
-my_curr_balance = get_curr_balance(address)
+
+my_curr_balance = get_curr_balance_eth(address)
 
 print(my_curr_balance)
+
+hist_bal = get_historical_balance_eth(address, my_transactions, 1618384251, 1619618759)
+
+for time in hist_bal:
+    print(time, hist_bal[time])
 
 #print(my_transactions)
