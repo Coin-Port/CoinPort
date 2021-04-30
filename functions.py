@@ -172,7 +172,7 @@ def revert_txns(transactions: list, balance: dict, end: int, txn_index: int) -> 
 def revert_txns_eth(transactions: list, balance: dict, end: int, txn_index: int) -> (int, dict): # returns new txn_index and balance
     # reverts transactions from present until 'end', transactions are given reverse chronologically
     balance = balance.copy() #make a copy of balance to not modify original, but i think either could work
-    while int(transactions[txn_index]['timeStamp']) >= end: # the balances would be the same if no transactions take place between the two times
+    while txn_index < len(transactions) and int(transactions[txn_index]['timeStamp']) >= end: # the balances would be the same if no transactions take place between the two times
         txn = transactions[txn_index]
         if txn['direction'] == 'exchange' or txn['direction'] == 'outgoing':
             balance['ETH'] += txn['gas'] # add gas since we're reverting
@@ -188,10 +188,9 @@ def revert_txns_eth(transactions: list, balance: dict, end: int, txn_index: int)
                     elif sub_txn['type'] == 'incoming':
                         if 'ETH' in balance:
                             balance['ETH'] -= amount
-                        else:
+                        else: # if some how the user has sent ETH but ETH doesn't exist in their wallet I'll just set it to 0
                             balance['ETH'] = 0
         txn_index += 1
-        if txn_index >= len(transactions): return (txn_index, balance)
     return (txn_index, balance)
 
 def get_historical_balance(address: str, transactions: list, start: int, end: int) -> dict:
