@@ -11,4 +11,3 @@ flask-bootstrap
 flask-nav
 flask-debug
 requests
-json
