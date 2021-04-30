@@ -1,7 +1,7 @@
 import requests
 from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
-from functions import get_transactions, get_historical_balance_eth
+from functions import get_transactions, get_historical_balance_eth, unix_to_readable
 
 app = Flask(__name__)
 
@@ -18,13 +18,16 @@ def index():
         address = request.form["address"]
         print(address)
         my_transactions = get_transactions(address)
-        hist_bal = get_historical_balance_eth(address, my_transactions, 1606730860, 1619748500)
+        start = 1606730860
+        end = 1619748500
+        hist_bal = get_historical_balance_eth(address, my_transactions, start, end)
 
         tuple_list = []
         for time in hist_bal:
             tuple_list.append(tuple([str(time), hist_bal[time]['ETH']]))
         #print(tuple_list)
-        labels = [row[0] for row in tuple_list]
+        tuple_list = tuple_list[::-1] # reverse chronlogical -> chronlogical
+        labels = [unix_to_readable(int(row[0])) for row in tuple_list]
         values = [row[1] for row in tuple_list]
 
         return render_template('index.html', standard=int(standard), fast=int(fast), instant=int(instant), labels=labels, values=values)
