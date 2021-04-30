@@ -6,7 +6,6 @@ from datetime import datetime
 
 #address = '0x7E379d280AC80BF9e5D5c30578e165e6c690acC9' # my address that i was testing
 #address = '0x145c692ea0B7D8dD26F0eD6230b2fC6c44EffdA1' # random address from the list that JC sent
-address = input('address: ')
 zapper_api_key = '96e0cc51-a62e-42ca-acee-910ea7d2a241' # public use API key
 ethscan_api_key = 'JBD58KU8MHIJ374AX3J1ICHX4F64YAKMAD'
 
@@ -306,37 +305,3 @@ def get_pnl(hist_fiat_balance: dict, start: int, end: int) -> dict: # keys = ['p
     pnl['daily_avg_pnl'] = pnl['pnl'] / ((end_time - start_time) / 864000) # total pnl / number of days
     pnl['daily_avg_pnl_percent'] = pnl['daily_avg_pnl'] / start_val * 100
     return pnl
-
-#print(get_tokens(address))
-
-my_transactions = get_transactions(address)
-
-#print(my_transactions)
-
-#print('found', len(my_transactions), 'transactions \n')
-
-my_curr_balance = get_curr_balance_eth(address)
-
-#print(my_curr_balance)
-
-hist_bal = get_historical_balance_eth(address, my_transactions, 1618384251, 1619618759)
-
-'''
-for time in hist_bal:
-    print(time, hist_bal[time])
-'''
-
-#print(len(hist_bal))
-
-fiat_hist_bal = get_historical_fiat_worth_eth(hist_bal, 1618384251, 1619618759, 'USD')
-
-pnl = get_pnl(fiat_hist_bal, 1618384251, 1619618759)
-
-print(pnl)
-
-'''
-for time in fiat_hist_bal:
-    print(time, fiat_hist_bal[time])
-'''
-
-#print(my_transactions)
