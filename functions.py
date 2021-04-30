@@ -1,12 +1,20 @@
 import json
 from urllib import request
-import time
+from time import strptime, struct_time, time, mktime
+from coin_list import coin_list as coingecko_coin_list
+from datetime import datetime
 
 #address = '0x7E379d280AC80BF9e5D5c30578e165e6c690acC9' # my address that i was testing
 #address = '0x145c692ea0B7D8dD26F0eD6230b2fC6c44EffdA1' # random address from the list that JC sent
 address = input('address: ')
 zapper_api_key = '96e0cc51-a62e-42ca-acee-910ea7d2a241' # public use API key
 ethscan_api_key = 'JBD58KU8MHIJ374AX3J1ICHX4F64YAKMAD'
+
+def unix_to_readable(time: int):
+    return datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+
+def readable_to_unix(time: int):
+    return mktime(struct_time(strptime(time, '%Y-%m-%d %H:%M:%S')))
 
 def get_tokens(address): # current tokens owned by user
     with request.urlopen('https://api.zapper.fi/v1/balances/tokens?addresses[]=%s&api_key=%s' % (address, zapper_api_key)) as url:
@@ -75,7 +83,6 @@ def get_transactions_w_ethscan(address): # historical transactions, with ethscan
         data[txn['hash']]['isError'] = not bool(txn['txSuccessful'])
 
     return data
-
 
 def get_balance_w_ethscan(transactions: dict, time: int) -> dict: # another function that will likely be unused but this is back up in the case that Zapper is unable to fix the missing transactions
     user_bal = {'ETH': 0}
@@ -223,11 +230,18 @@ def get_historical_balance_eth(address: str, transactions: list, start: int, end
     end = int(end) 
     start = int(start)
 
+    # This is from the coingecko API documentation
+    # see here: https://www.coingecko.com/api/documentations/v3#/coins/get_coins__id__market_chart
+    # Data granularity is automatic (cannot be adjusted)
+    # 1 day from query time = 5 minute interval data
+    # 1 - 90 days from query time = hourly data
+    # above 90 days from query time = daily data (00:00 UTC)
+    
     if end - start <= 86400: # 1 day or less
-        interval = 60 # minutely intervals
-    elif end - start <= 5184000: # 60 days or less
+        interval = 360 # 5-minutely intervals
+    elif end - start <= 7776000: # 90 days or less
         interval = 3600 # hourly intervals    
-    else: # more than 60 days
+    else: # more than 90 days
         interval = 86400 # daily intervals
 
     reverted = revert_txns_eth(transactions, balance, end, 0) # revert transactions until we reach the end of our interval from the present
@@ -240,30 +254,89 @@ def get_historical_balance_eth(address: str, transactions: list, start: int, end
     
     return historical_balance
 
+def get_price_history(coin_id: str, days: str, currency: str):
+    interval = 'daily'
+
+    if int(days) <= 60: # hourly price intervals for past 2 months
+        interval = 'hourly'
+    elif int(days) <= 1: # minute price interval for past day
+        interval = 'minutely' 
+
+    with request.urlopen('https://api.coingecko.com/api/v3/coins/%s/market_chart?vs_currency=%s&days=%s&interval=%s' % (coin_id, currency, days, interval)) as url:
+        data = json.loads(url.read().decode())
+        return data
+        
+def get_price_history_interval(coin_symbol: str, start: int, end: int, currency: str):
+    coin_id = coingecko_coin_list[coin_symbol.lower()]['id']
+
+    # This is from the coingecko API documentation
+    # see here: https://www.coingecko.com/api/documentations/v3#/coins/get_coins__id__market_chart
+    # Data granularity is automatic (cannot be adjusted)
+    # 1 day from query time = 5 minute interval data
+    # 1 - 90 days from query time = hourly data
+    # above 90 days from query time = daily data (00:00 UTC)    
+    
+    with request.urlopen("https://api.coingecko.com/api/v3/coins/%s/market_chart/range?vs_currency=%s&from=%d&to=%d" % (coin_id, currency, start, end)) as url:
+        data = json.loads(url.read().decode())
+        return data['prices']
+
 def get_historical_fiat_worth(historical_balance: dict, start: int, end: int) -> dict:
     pass
 
-def get_daily_avg_pnl(hist_fiat_balance: dict, start: int, end: int) -> dict:
-    pass
+def get_historical_fiat_worth_eth(historical_balance: dict, start: int, end: int, currency: str) -> dict:
+    price_history = get_price_history_interval('ETH', start, end, currency)
+    fiat_history = {}
+    for time, price in zip(historical_balance, price_history): 
+        # since the intervals are the same size and the beginning and end are close enough (if not the same)
+        # soo.... I can just iterate through these two things side by side and not run into any trouble (hopefully)
+        fiat_history[time] = {'ETH': historical_balance[time]['ETH'] * price[1]}
+    return fiat_history
+
+def get_pnl(hist_fiat_balance: dict, start: int, end: int) -> dict: # keys = ['pnl', 'pnl_percent', 'daily_avg_pnl', 'daily_avg_pnl_percent']
+    pnl = {'pnl': 0, 'pnl_percent': 0, 'daily_avg_pnl': 0, 'daily_avg_pnl_percent': 0}
+    
+    # generalizing for more than just ETH
+    start_time = list(hist_fiat_balance)[-1]
+    end_time = list(hist_fiat_balance)[0]
+    start_val = sum(hist_fiat_balance[start_time].values())
+    end_val = sum(hist_fiat_balance[end_time].values())
+    
+    pnl['pnl'] = end_val - start_val 
+    pnl['pnl_percent'] = pnl['pnl'] / start_val * 100 # percentage gain over initial value
+    pnl['daily_avg_pnl'] = pnl['pnl'] / ((end_time - start_time) / 864000) # total pnl / number of days
+    pnl['daily_avg_pnl_percent'] = pnl['daily_avg_pnl'] / start_val * 100
+    return pnl
 
 #print(get_tokens(address))
-
-my_eth = 0
 
 my_transactions = get_transactions(address)
 
 #print(my_transactions)
 
-print('found', len(my_transactions), 'transactions \n')
-
+#print('found', len(my_transactions), 'transactions \n')
 
 my_curr_balance = get_curr_balance_eth(address)
 
-print(my_curr_balance)
+#print(my_curr_balance)
 
 hist_bal = get_historical_balance_eth(address, my_transactions, 1618384251, 1619618759)
 
+'''
 for time in hist_bal:
     print(time, hist_bal[time])
+'''
+
+#print(len(hist_bal))
+
+fiat_hist_bal = get_historical_fiat_worth_eth(hist_bal, 1618384251, 1619618759, 'USD')
+
+pnl = get_pnl(fiat_hist_bal, 1618384251, 1619618759)
+
+print(pnl)
+
+'''
+for time in fiat_hist_bal:
+    print(time, fiat_hist_bal[time])
+'''
 
 #print(my_transactions)
