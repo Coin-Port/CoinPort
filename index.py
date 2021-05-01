@@ -42,11 +42,11 @@ def index():
         #print(labels, values)
         return render_template('index.html', standard=int(standard), fast=int(fast), instant=int(instant), labels=labels, values=values, address=address)
     else:
-        return render_template('index.html', standard=int(standard), fast=int(fast), instant=int(instant))
+        return render_template('index.html', standard=int(standard), fast=int(fast), instant=int(instant), address="address")
 
 @app.route('/index.html')
 def home():
-    return render_template('index.html', address="enter any Ethereum address")
+    return render_template('index.html', address="address")
 
 if __name__ == "__main__":
     app.run(debug=True)
