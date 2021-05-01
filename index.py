@@ -42,7 +42,7 @@ def index():
         #print(labels, values)
         return render_template('index.html', standard=int(standard), fast=int(fast), instant=int(instant), labels=labels, values=values, address=address)
     else:
-        return render_template('index.html', standard=int(standard), fast=int(fast), instant=int(instant), address="address")
+        return render_template('landing.html')
 
 @app.route('/index.html')
 def home():
