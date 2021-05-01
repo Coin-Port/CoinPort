@@ -24,7 +24,7 @@ def index():
         start = int(my_transactions[-1]['timeStamp']) - 3600 # 1 hour before first transaction
         end = current_time()
         hist_bal = get_historical_balance_eth(address, my_transactions, start, end)
-        pnl = get_pnl(hist_bal, start, end)
+        pnl = get_pnl(hist_bal, start, end) #pnl function
         tuple_list = []
         for time in hist_bal:
             temp = unix_to_readable(time)
