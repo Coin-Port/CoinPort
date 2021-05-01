@@ -1,3 +1,84 @@
+supported_protocols = { 
+    "binance-smart-chain": [
+      "autofarm",
+      "ellipsis",
+      "harvest",
+      "tokens",
+      "venus",
+      "pancakeswap"
+    ],
+    "ethereum": [
+      "alpha",
+      "alchemix",
+      "aave(v2)",
+      "aave-amm",
+      "aave",
+      "b-protocol",
+      "badger",
+      "balancer",
+      "bancor",
+      "barnbridge",
+      "bitcoin",
+      "compound",
+      "cover",
+      "cream",
+      "curve",
+      "defisaver",
+      "derivadex",
+      "dforce",
+      "dhedge",
+      "dodo",
+      "dsd",
+      "dydx",
+      "esd",
+      "futureswap",
+      "harvest",
+      "hegic",
+      "idle",
+      "keeper-dao",
+      "liquity",
+      "linkswap",
+      "loopring",
+      "maker",
+      "mooniswap",
+      "1inch",
+      "nft",
+      "other",
+      "pickle",
+      "pooltogether",
+      "rari",
+      "realt",
+      "reflexer",
+      "saddle",
+      "sfinance",
+      "shell",
+      "smoothy",
+      "snowswap",
+      "sushiswap",
+      "swerve",
+      "synthetix",
+      "tokensets",
+      "tokens",
+      "uniswap(v2)",
+      "uniswap",
+      "unit",
+      "value",
+      "vesper",
+      "xsigma",
+      "yearn"
+    ],
+    "optimism": [
+        "synthetix"
+    ],
+    "polygon": [
+        "tokens",
+        'quickswap',
+        'aave-v2',
+        'curve',
+        'pooltogether'
+    ]
+}
+
 coin_list = {
    "zoc":{
       "id":"01coin",
@@ -763,75 +844,75 @@ coin_list = {
       "id":"aave",
       "name":"Aave"
    },
-   "abat":{
+   "abat(v2)":{ # v2 is same price as v1 and since coingecko doesnt support v2 for aave yet i'll just use same IDs
       "id":"aave-bat-v1",
       "name":"Aave BAT v1"
    },
-   "abusd":{
+   "abusd(v2)":{
       "id":"aave-busd-v1",
       "name":"Aave BUSD v1"
    },
-   "adai":{
+   "adai(v2)":{
       "id":"aave-dai-v1",
       "name":"Aave DAI v1"
    },
-   "aenj":{
+   "aenj(v2)":{
       "id":"aave-enj-v1",
       "name":"Aave ENJ v1"
    },
-   "aeth":{
+   "aeth(v2)":{
       "id":"ankreth",
       "name":"ankrETH"
    },
-   "ghst":{
+   "ghst(v2)":{
       "id":"aavegotchi",
       "name":"Aavegotchi"
    },
-   "aknc":{
+   "aknc(v2)":{
       "id":"aave-knc-v1",
       "name":"Aave KNC v1"
    },
-   "alink":{
+   "alink(v2)":{
       "id":"aave-link-v1",
       "name":"Aave LINK v1"
    },
-   "amana":{
+   "amana(v2)":{
       "id":"aave-mana-v1",
       "name":"Aave MANA v1"
    },
-   "amkr":{
+   "amkr(v2)":{
       "id":"aave-mkr-v1",
       "name":"Aave MKR v1"
    },
-   "aren":{
+   "aren(v2)":{
       "id":"aave-ren-v1",
       "name":"Aave REN v1"
    },
-   "asnx":{
+   "asnx(v2)":{
       "id":"aave-snx-v1",
       "name":"Aave SNX v1"
    },
-   "asusd":{
+   "asusd(v2)":{
       "id":"aave-susd-v1",
       "name":"Aave SUSD v1"
    },
-   "atusd":{
+   "atusd(v2)":{
       "id":"aave-tusd-v1",
       "name":"Aave TUSD v1"
    },
-   "ausdc":{
+   "ausdc(v2)":{
       "id":"aave-usdc-v1",
       "name":"Aave USDC v1"
    },
-   "ausdt":{
+   "ausdt(v2)":{
       "id":"aave-usdt-v1",
       "name":"Aave USDT v1"
    },
-   "awbtc":{
+   "awbtc(v2)":{
       "id":"aave-wbtc-v1",
       "name":"Aave WBTC v1"
    },
-   "azrx":{
+   "azrx(v2)":{
       "id":"aave-zrx-v1",
       "name":"Aave ZRX v1"
    },

@@ -2,6 +2,7 @@ import json
 from urllib import request
 from time import strptime, struct_time, time, mktime
 from coin_list import coin_list as coingecko_coin_list
+from coin_list import supported_protocols as zapper_supported_protocols
 from datetime import datetime
 
 #address = '0x7E379d280AC80BF9e5D5c30578e165e6c690acC9' # my address that i was testing
@@ -10,10 +11,10 @@ zapper_api_key = '96e0cc51-a62e-42ca-acee-910ea7d2a241' # public use API key
 ethscan_api_key = 'JBD58KU8MHIJ374AX3J1ICHX4F64YAKMAD'
 
 def unix_to_readable(time: int):
-    return datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S')
+    return datetime.fromtimestamp(time).strftime('%Y/%m/%d %H:%M:%S')
 
 def readable_to_unix(time: int):
-    return mktime(struct_time(strptime(time, '%Y-%m-%d %H:%M:%S')))
+    return mktime(struct_time(strptime(time, '%Y/%m/%d %H:%M:%S')))
 
 def get_tokens(address): # current tokens owned by user
     with request.urlopen('https://api.zapper.fi/v1/balances/tokens?addresses[]=%s&api_key=%s' % (address, zapper_api_key)) as url:
@@ -290,17 +291,15 @@ def get_historical_fiat_worth_eth(historical_balance: dict, start: int, end: int
         fiat_history[time] = {'ETH': historical_balance[time]['ETH'] * price[1]}
     return fiat_history
 
-def get_pnl(hist_fiat_balance: dict, start: int, end: int) -> dict: # keys = ['pnl', 'pnl_percent', 'daily_avg_pnl', 'daily_avg_pnl_percent']
-    pnl = {'pnl': 0, 'pnl_percent': 0, 'daily_avg_pnl': 0, 'daily_avg_pnl_percent': 0}
-    
+def get_pnl(hist_fiat_balance: dict, start: int, end: int) -> tuple: # (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent)    
     # generalizing for more than just ETH
     start_time = list(hist_fiat_balance)[-1]
     end_time = list(hist_fiat_balance)[0]
     start_val = sum(hist_fiat_balance[start_time].values())
     end_val = sum(hist_fiat_balance[end_time].values())
     
-    pnl['pnl'] = end_val - start_val 
-    pnl['pnl_percent'] = pnl['pnl'] / start_val * 100 # percentage gain over initial value
-    pnl['daily_avg_pnl'] = pnl['pnl'] / ((end_time - start_time) / 864000) # total pnl / number of days
-    pnl['daily_avg_pnl_percent'] = pnl['daily_avg_pnl'] / start_val * 100
-    return pnl
+    pnl = end_val - start_val 
+    pnl_percent = pnl / start_val * 100 # percentage gain over initial value
+    daily_avg_pnl = pnl / ((end_time - start_time) / 864000) # total pnl / number of days
+    daily_avg_pnl_percent = daily_avg_pnl / start_val * 100
+    return (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent)
