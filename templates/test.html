@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="">
+  <link rel="icon" href="static/coinport_logo.png">
+
+  <link rel="apple-touch-icon" href="static/coinport_logo.png">
+  <!-- Particle and Chart JavaScript -->
+  <script src="static/js/nextparticle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.2.0/dist/chart.min.js"></script>
+  <title>CoinPort</title>
+  <!-- Bootstrap core CSS -->
+  <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles -->
+  <link href="/static/css/product.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static',filename='index.css') }}">
+</head>
+
+<body>
+
+
+  <h1 id="title" class="mt-2" style="top: 10%; text-align: center; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; color: steelblue; font-size: 72px;">CoinPort.</h1>
+
+  <!-- Top card -->
+  <div class="position-relative col-md-12 mt-2 pt-4 text-center">
+    <img id="logo" src="static/coinport_logo.png" alt="CoinPort.">
+    <script type="text/javascript">
+      nextParticle = new NextParticle({
+        image: document.all.logo,
+        addTimestamp: true,
+        width: Math.round(window.innerWidth * 0.95),
+        height: Math.round(window.innerHeight * 0.21),
+        particleGap: 2,
+        noise: 0.09,
+        gravity: 0.2,
+        initPosition: 'none',
+        initDirection: 'none',
+      });
+
+
+      window.onresize = function() {
+        nextParticle.width = Math.round(window.innerWidth * 0.95);
+        nextParticle.height = Math.round(window.innerHeight * 0.21);
+        nextParticle.start();
+      };
+    </script>
+  </div>
+
+  <br><br>
+  <div class="col-md-8 mx-auto pb-3">
+    {% block content %}
+    <form action="" method="POST" class="form-inline col-lg-6 offset-lg-3">
+      <input name="address" class="form-control col-md-8 mr-sm-2" style="border-radius: 0 !important;" type="text" placeholder="Address" aria-label="Search">
+      <button class="btn col-md-3 my-2 my-sm-0 btn-wrap-text" style="border-radius: 0 !important; color: #6450f4; border-color: #6450f4;" type="submit">Analyze</button>
+    </form>
+    {% endblock %}
+  </div>
+
+
+  <footer class="fixed-bottom bg-light">
+    <div class="container">
+      <p class="m-0 lead text-center text-black"><small class="lead">Built with </small><small class="lead"><a style="color: #6450f4;" target="_blank" href="https://www.zapper.fi/">Zapper. </a></small> © CoinPort 2021</p>
+    </div>
+  </footer>
+
+
+  <script src="static/js/nextparticle.js"></script>
+  <!-- Bootstrap core JavaScript
+    ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script>
+    window.jQuery || document.write('<script src="/static/vendor/jquery/jquery-slim.min.js"><\/script>')
+  </script>
+  <script src="/static/vendor/jquery/bootstrap.min.js"></script>
+  <script src="/static/vendor/jquery/holder.min.js"></script>
+  <script>
+    Holder.addTheme('thumb', {
+      bg: '#55595c',
+      fg: '#eceeef',
+      text: 'Thumbnail'
+    });
+  </script>
+</body>
+
+</html>
