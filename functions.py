@@ -35,7 +35,8 @@ def get_curr_balance_zapper(address: str) -> dict:
     for token in data:
         balances[token["symbol"]] = token["balance"]
     return balances
-
+    
+'''
 #Returns a list of dicts, a dict for each currency that contains in staking
 #symbol: the symbol
 #balance: balance in crypto 
@@ -68,11 +69,8 @@ def get_staked_zapper(address: str) -> list:
             temp_balance["balanceUSD"] += balances_sub[index]["balanceUSD"]
         balances_main.append(temp_balance)
     
-    return balances_main
+    return balances_main'''
     
-            
-
-
 def get_curr_balance_eth_only(address: str) -> dict:
     with request.urlopen('https://api.zapper.fi/v1/balances/tokens?addresses[]=%s&api_key=%s' % (address, zapper_api_key)) as url:
         data = json.loads(url.read().decode())

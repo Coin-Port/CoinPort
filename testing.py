@@ -1,7 +1,7 @@
 from functions import *
 import time
 
-address = '0x7E379d280AC80BF9e5D5c30578e165e6c690acC9'
+address = '0xEf40c39851b6669dad6f73dE7578760201968908'
 
 start = 1611371447
 end = int(time.time())
