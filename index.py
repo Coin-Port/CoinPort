@@ -1,7 +1,7 @@
 import requests
 from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
-from functions import get_transactions, get_historical_balance_eth, unix_to_readable, get_pnl
+from functions_copy import get_transactions, get_historical_balance_eth, unix_to_readable, get_pnl
 from time import time as current_time_float
 
 app = Flask(__name__)
@@ -27,7 +27,7 @@ def chart_builder(address: str):
             spliced_time = temp[5:10] # mm/dd
         else: # more than a year
             spliced_time = temp[0:10] # yy/mm/dd
-        tuple_list.append(tuple([spliced_time, hist_bal[time]['ETH']]))
+        tuple_list.append(tuple([spliced_time, float(hist_bal[time]['ETH'])]))
     return tuple_list
 
 
