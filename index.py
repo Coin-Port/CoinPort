@@ -1,21 +1,19 @@
 import requests
 from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
-from functions_copy import get_transactions, get_historical_balance_eth, unix_to_readable, get_pnl
-from time import time as current_time_float
+from functions import get_transactions, get_curr_balance, get_historical_balance, get_pnl, get_price_history_interval, unix_to_readable
+from time import time as curr_time
 
 app = Flask(__name__)
 
-def current_time():
-    return int(current_time_float())
-
-
 def chart_builder(address: str):
     my_transactions = get_transactions(address)
-    start = int(my_transactions[-1]['timeStamp']) - 3600 # 1 hour before first transaction
-    end = current_time()
-    hist_bal = get_historical_balance_eth(address, my_transactions, start, end)
-    pnl = get_pnl(hist_bal, start, end) #pnl function
+    start = int(my_transactions[0]['timeStamp']) # first transaction
+    end = int(curr_time())
+    start = end - 100000 # a bit more than a day
+    hist_bal = get_historical_balance(address, my_transactions, start, end)
+    print(hist_bal)
+    #pnl = get_pnl(hist_bal, start, end) #pnl function
     tuple_list = []
     for time in hist_bal:
         temp = unix_to_readable(time)
@@ -27,10 +25,9 @@ def chart_builder(address: str):
             spliced_time = temp[5:10] # mm/dd
         else: # more than a year
             spliced_time = temp[0:10] # yy/mm/dd
-        tuple_list.append(tuple([spliced_time, float(hist_bal[time]['ETH'])]))
+        print(time, hist_bal[time])
+        tuple_list.append(tuple([spliced_time, float(hist_bal[time]['ETH'][0])]))
     return tuple_list
-
-
 
 @app.route('/', methods=['POST', 'GET'])
 def index():

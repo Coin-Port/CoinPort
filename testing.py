@@ -1,14 +1,16 @@
 from functions import *
 import time
 
-address = '0xEf40c39851b6669dad6f73dE7578760201968908'
+address = '0x7E379d280AC80BF9e5D5c30578e165e6c690acC9'
 
-start = 1611371447
+my_txs = get_transactions(address)
+
 end = int(time.time())
-
-my_txs = get_transactions_ethscan(address)
+start = end - (3600 * 24 * 3)
 
 print('im here')
+
+print(get_price_history_interval('aDai', start, end, 'usd'))
 
 with open('get_txn_ethscan_test.json', 'w') as f:
     f.write(str(my_txs))
@@ -25,5 +27,5 @@ readable_hist_bal = human_time_hist_bal(hist_bal)
 print('then im here')
 
 with open('historical_balance.json', 'w') as f:
-    f.write(str(hist_bal))
+    f.write(str(readable_hist_bal))
     f.close()
