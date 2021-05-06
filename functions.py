@@ -365,8 +365,7 @@ def get_historical_balance(address: str, txns: list, start: int, end: int, curre
     balance = get_curr_balance(address)
     historical_balance = {}
     txn_index = 0
-    
-    
+
     # precautions
     start = int(start)
     end = int(end)
@@ -415,7 +414,7 @@ def get_historical_balance(address: str, txns: list, start: int, end: int, curre
                         historical_prices[coin] = [0 for _ in range(len(historical_prices['ETH']))] # set value to 0 if not found
                 index2 = index
                 while index2 >= len(historical_prices[coin]): index2 -= 1 # temporary fix
-                historical_balance[time][coin][1] = historical_balance[time][coin][0] * Decimal(historical_prices[coin][index2]) 
+                historical_balance[time][coin][1] = historical_balance[time][coin][0] * Decimal(historical_prices[coin][index2])
         historical_balance[time]['totalValue'] = sum([0 if coin == 'totalValue' else historical_balance[time][coin][1] for coin in historical_balance[time]])
     
     return historical_balance
