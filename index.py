@@ -34,13 +34,12 @@ def chart_builder(address: str):
 
 # Only works for amounts greater than $1, hence the use of int().
 
-
 def pie_builder(address: str):
     pie_list = []
     pie_dict = get_curr_balance(address)
     for token in list(pie_dict.keys()):
-        if (int(pie_dict[token][1]) > 0):
-            pie_list.append(tuple([token, int(pie_dict[token][1])]))
+        if (float(pie_dict[token][1]) > 0):
+            pie_list.append(tuple([token, float(pie_dict[token][1])]))
     return pie_list
 
 

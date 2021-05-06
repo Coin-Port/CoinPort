@@ -33,5 +33,10 @@ readable_hist_bal = human_time_hist_bal(hist_bal)
 print('then im here')
 
 with open('historical_balance.json', 'w') as f:
-    f.write(str(readable_hist_bal))
+    f.write(str(hist_bal))
     f.close()
+
+min_time = hist_bal.keys()[-1]
+max_time = hist_bal.keys()[0]
+
+print(min_time, max_time)
