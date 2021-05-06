@@ -410,10 +410,12 @@ def get_historical_balance(address: str, txns: list, start: int, end: int, curre
             if coin != 'totalValue':
                 if coin not in historical_prices:
                     if coin.lower() in coingecko_coin_list:
-                        historical_prices[coin] = get_price_history_interval_list(coin.lower(), start, end, currency)
+                        historical_prices[coin] = get_price_history_interval_list(coin.lower(), start - interval // 2, end + interval // 2, currency)
                     else:
                         historical_prices[coin] = [0 for _ in range(len(historical_prices['ETH']))] # set value to 0 if not found
-                historical_balance[time][coin][1] = historical_balance[time][coin][0] * Decimal(historical_prices[coin][index if index < len(historical_prices[coin]) else index - 1])
+                index2 = index
+                while index2 >= len(historical_prices[coin]): index2 -= 1 # temporary fix
+                historical_balance[time][coin][1] = historical_balance[time][coin][0] * Decimal(historical_prices[coin][index2]) 
         historical_balance[time]['totalValue'] = sum([0 if coin == 'totalValue' else historical_balance[time][coin][1] for coin in historical_balance[time]])
     
     return historical_balance

@@ -10,7 +10,7 @@ def chart_builder(address: str):
     my_transactions = get_transactions(address)
     start = int(my_transactions[0]['timeStamp']) # first transaction
     end = int(curr_time())
-    start = end - 100000 # a bit more than a day
+    start = end - 1000000
     hist_bal = get_historical_balance(address, my_transactions, start, end)
     print(hist_bal)
     #pnl = get_pnl(hist_bal, start, end) #pnl function

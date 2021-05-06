@@ -6,7 +6,7 @@ address = '0x7E379d280AC80BF9e5D5c30578e165e6c690acC9'
 my_txs = get_transactions(address)
 
 end = int(time.time())
-start = end - (3600 * 24 * 3)
+start = end - 1000000
 
 print('im here')
 
