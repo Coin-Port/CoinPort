@@ -2,6 +2,11 @@ from functions import *
 import time
 
 address = '0xEf40c39851b6669dad6f73dE7578760201968908'
+address2 = '0x7e379d280ac80bf9e5d5c30578e165e6c690acc9'
+
+print(get_staked_zapper(address2))
+print(get_pool_balance_zapper(address2))
+print("\n\n\n\n\n")
 
 start = 1611371447
 end = int(time.time())
