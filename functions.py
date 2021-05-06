@@ -26,6 +26,7 @@ def get_tokens(address): # current tokens owned by user
         data = json.loads(url.read().decode())
         return data
 
+#Gets the current balance of an address using zappper
 def get_curr_balance_zapper(address: str) -> dict:
     with request.urlopen('https://api.zapper.fi/v1/balances/tokens?addresses[]=%s&api_key=%s' % (address, zapper_api_key)) as url:
         data = json.loads(url.read().decode())
@@ -35,9 +36,51 @@ def get_curr_balance_zapper(address: str) -> dict:
     for token in data:
         balances[token["symbol"]] = token["balance"]
     return balances
+
+#Gets the current balance of pools using zapper
+#Returns a list of dicts where each dict has, except the first element in the list which is the total balanceUSD of all pools:
+#symbol: the symbol of the pool
+#balanceUSD: the total balance in usd user has in the pool
+#balances1: the balance of the first type of crypto where s1 is the symbol (eg balanceeth, balancebtc)
+#balances2: the balance of the second type of crypto where s2 is the symbol (eg balancebtc, balanceeth)
+def get_pool_balance_zapper(address: str) -> dict:
+    protocols_with_pools = get_pool_protocols_zapper(address)
+    data = list()
+    balances = list()
+    balances.append(0)
+
+    for protocol in protocols_with_pools:
+        with request.urlopen('https://api.zapper.fi/v1/protocols/%s/balances?addresses[]=%s&network=ethereum&api_key=%s' % (protocol, address, zapper_api_key)) as url:
+            data = data.append(json.loads(url.read().decode()))
     
-'''
-#Returns a list of dicts, a dict for each currency that contains in staking
+    for pool in data:
+        balances[0] += pool["balanceUSD"]
+        to_append = {"symbol" : pool["symbol"], "balanceUSD" : pool["balanceUSD"]}
+        for token in pool["tokens"]:
+            balance_symbol = "balance" + token["symbol"]
+            to_append[balance_symbol] = token["balance"]
+        balances.append(to_append)
+    
+    return balances
+        
+    
+
+#Helper function for get_pool_balance_zapper(), used to find what protocols we have to loop over
+def get_pool_protocols_zapper(address: str) -> list:
+    protocols_with_pools = list()
+    with request.urlopen('https://api.zapper.fi/v1/protocols/balances/supported?addresses[]=%s&api_key=%s' % (address, zapper_api_key)) as url:
+        data = json.loads(url.read().decode())
+    for network in data:
+        if "network" in network and network["network"]=="ethereum":
+            data = network["protocols"]
+            break
+    for protocol in data:
+        if "tags" in protocol.keys() and "liquidity-pool" in protocol["tags"]: protocols_with_pools.append(protocol["protocol"])
+    
+    return protocols_with_pools
+
+
+#Returns a list of dicts, a dict for each currency that contains in staking, but the first value is total staked balance
 #symbol: the symbol
 #balance: balance in crypto 
 #balanceUSD: balance of crypto in USD
@@ -45,31 +88,33 @@ def get_staked_zapper(address: str) -> list:
     #There are 4 different protocols for staking so I combine all of them, balances_sub is a list of the balances for each protocol
     protocols = {0 : "masterchef", 1 : "geyser", 2 : "gauge", 3 : "single-staking"}
     balances_main = list()
+    balances_main.append(0)
     balances_sub = list()
-    
-    data = list()
 
     symbol_lookup = dict()
     for protocol in protocols:
         with request.urlopen('https://api.zapper.fi/v1/staked-balance/%s?addresses[]=%s&network=ethereum&api_key=%s' % (protocols[protocol], address, zapper_api_key)) as url:
-            data.append(json.loads(url.read().decode()))
+            data = json.loads(url.read().decode())
         data = data[address.lower()]
         if data: 
-            data = ["tokens"]
+            data = data[0]["tokens"]
             for token in data:
                 balances_sub.append({"symbol" : token["symbol"], "balance" : token["balance"], "balanceUSD" : token["balanceUSD"]})
-                if token["symbol"] in symbol_lookup.keys(): symbol_lookup[[token["symbol"]].append(len(balances_sub)-1)
-                symbol_lookup[token["symbol"] : [len(balances_sub)-1]] #dict of locations of occurence of a symbol
+                if token["symbol"] in symbol_lookup.keys(): 
+                    symbol_lookup[token["symbol"]] = symbol_lookup[token["symbol"]].append(len(balances_sub)-1)
+                else: 
+                    symbol_lookup[token["symbol"]] = [len(balances_sub)-1] #dict of locations of occurence of a symbol
             balances_sub.sort(key = lambda k: k["symbol"])
     
     for indices in symbol_lookup:
-        temp_balance = balances_sub[indices[0]]
-        for index in indices[1:]:
+        temp_balance = balances_sub[symbol_lookup[indices][0]]
+        for index in symbol_lookup[indices][1:]:
             temp_balance["balance"] += balances_sub[index]["balance"]
             temp_balance["balanceUSD"] += balances_sub[index]["balanceUSD"]
+        balances_main[0] += temp_balance["balanceUSD"]
         balances_main.append(temp_balance)
     
-    return balances_main'''
+    return balances_main
     
 def get_curr_balance_eth_only(address: str) -> dict:
     with request.urlopen('https://api.zapper.fi/v1/balances/tokens?addresses[]=%s&api_key=%s' % (address, zapper_api_key)) as url:
