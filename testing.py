@@ -4,8 +4,8 @@ import time
 address = '0xEf40c39851b6669dad6f73dE7578760201968908'
 address2 = '0x7e379d280ac80bf9e5d5c30578e165e6c690acc9'
 
-print(get_staked_zapper(address2))
-print(get_pool_balance_zapper(address2))
+#print(get_staked_zapper(address2))
+#print(get_pool_balance_zapper(address2))
 print("\n\n\n\n\n")
 address = '0x7E379d280AC80BF9e5D5c30578e165e6c690acC9'
 
@@ -16,7 +16,7 @@ start = end - 1000000
 
 print('im here')
 
-print(get_price_history_interval('aDai', start, end, 'usd'))
+#print(get_price_history_interval('link', start, end, 'usd'))
 
 with open('get_txn_ethscan_test.json', 'w') as f:
     f.write(str(my_txs))

@@ -229,12 +229,12 @@ def get_historical_fiat_worth_eth_only(historical_balance: dict, start: int, end
     return fiat_history
 
 # gonna have to rewrite this at some point lul
-def get_pnl(hist_fiat_balance: dict, start: int, end: int) -> tuple: # (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent)    
+def get_pnl(hist_fiat_balance: dict, start: int, end: int, values='totalValue') -> tuple: # (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent)    
     # generalizing for more than just ETH
     start_time = list(hist_fiat_balance)[-1]
     end_time = list(hist_fiat_balance)[0]
-    start_val = sum(hist_fiat_balance[start_time].values())
-    end_val = sum(hist_fiat_balance[end_time].values())
+    start_val = float(hist_fiat_balance[start_time]['totalValue'])
+    end_val = float(hist_fiat_balance[end_time]['totalValue'])
     
     pnl = end_val - start_val 
     pnl_percent = pnl / start_val * 100 # percentage gain over initial value
@@ -434,7 +434,7 @@ def get_historical_balance(address: str, txns: list, start: int, end: int, curre
     end = new_end - interval if new_end > end else new_end
     '''
     
-    historical_prices = {'ETH': get_price_history_interval_list('ETH', start, end + interval, currency)} 
+    historical_prices = {'ETH': get_price_history_interval_list('ETH', start, end + interval, currency)[::-1]} 
        
     reverted = revert_txns(txns, balance, end, 0) # revert transactions until we reach the end of our interval from the present
     txn_index, historical_balance[end] = reverted[0], reverted[1]
@@ -454,7 +454,7 @@ def get_historical_balance(address: str, txns: list, start: int, end: int, curre
             if coin != 'totalValue':
                 if coin not in historical_prices:
                     if coin.lower() in coingecko_coin_list:
-                        historical_prices[coin] = get_price_history_interval_list(coin.lower(), start - interval // 2, end + interval // 2, currency)
+                        historical_prices[coin] = get_price_history_interval_list(coin.lower(), start - interval // 2, end + interval // 2, currency)[::-1]
                     else:
                         historical_prices[coin] = [0 for _ in range(len(historical_prices['ETH']))] # set value to 0 if not found
                 index2 = index
