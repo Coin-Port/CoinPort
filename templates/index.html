@@ -17,7 +17,7 @@
 
   <!-- Custom styles -->
   <link href="/static/css/product.css" rel="stylesheet">
-  <link rel="stylesheet" href= "{{ url_for('static',filename='index.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static',filename='index.css') }}">
 </head>
 
 <body>
@@ -37,7 +37,9 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto text-center">
             <li class="nav-item">
-              <a class="nav-link js-scroll-trigger"><h5 style='color: grey'>Gas:</h5>Standard: {{standard}} | Fast: {{fast}} | Instant: {{instant}}</a>
+              <a class="nav-link js-scroll-trigger">
+                <h5 style='color: grey'>Gas:</h5>Standard: {{standard}} | Fast: {{fast}} | Instant: {{instant}}
+              </a>
             </li>
           </ul>
         </div>
@@ -85,8 +87,8 @@
 
     <!-- Second cards -->
     <div class="d-md-flex flex-md-equal w-100 my-md-3 pl-md-3">
-      <div class="mr-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center text-white overflow-hidden">
-        <canvas id="chart"></canvas>
+      <div class="mr-md-3 pt-3 pt-md-4 px-3 px-md-5 text-center text-white overflow-hidden">
+        <canvas id="balance_chart"></canvas>
         <script>
           // <block:setup:1>
           const labels = [
@@ -105,32 +107,59 @@
               backgroundColor: '#6450f4',
               borderColor: '#6450f4',
               data: {{ values | safe }},
-              }
-            ]
+            }]
           };
           // </block:setup>
 
           // <block:config:0>
-          const config = {
+          const config_balance = {
             type: 'line',
             data,
             options: {}
           };
 
 
-          var myChart = new Chart(
-            document.getElementById('chart'),
-            config
+          var bal_chart = new Chart(
+            document.getElementById('balance_chart'),
+            config_balance
           );
         </script>
       </div>
-      <div class="bg-light mr-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+      <div class="bg-light mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
+        <div style="width:55%; margin: auto; padding-bottom: 10px">
+        <canvas id="pie_chart"></canvas>
+        <script>
+          const pie_data = {
+            labels: {{ pie_labels | safe }},
+            datasets: [{
+              label: 'Asset Allocation',
+              data: {{ pie_values | safe }},
+              backgroundColor: [
+                'rgb(255, 99, 132)',
+                'rgb(54, 162, 235)',
+                'rgb(255, 205, 86)'
+              ],
+              hoverOffset: 4
+            }]
+          };
+
+          const config_pie = {
+            type: 'pie',
+            data: pie_data,
+            options: {
+              responsive: true
+            }
+          };
+
+          var pie_chart = new Chart(
+            document.getElementById('pie_chart'),
+            config_pie
+          );
+        </script>
       </div>
     </div>
-
-
-
     </div>
+
 
 
 
