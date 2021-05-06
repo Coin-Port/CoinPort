@@ -32,8 +32,6 @@ def chart_builder(address: str):
             tuple([spliced_time, float(hist_bal[time]['ETH'][0])]))
     return tuple_list
 
-# Only works for amounts greater than $1, hence the use of int().
-
 def pie_builder(address: str):
     pie_list = []
     pie_dict = get_curr_balance(address)
@@ -41,7 +39,6 @@ def pie_builder(address: str):
         if (float(pie_dict[token][1]) > 0):
             pie_list.append(tuple([token, float(pie_dict[token][1])]))
     return pie_list
-
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
