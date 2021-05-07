@@ -29,16 +29,21 @@
       <div class="container-fluid">
         <a class="navbar-brand py-2" href="/">
           <img src="static/coinport_logo.png" alt="CoinPort" width="40" width="40" class="d-inline-block align-top">
-          <span class="d-inline-block align-top" style="font-weight: 500; color:steelblue">CoinPort.</span>
+          <span class="d-inline-block align-top" style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; font-weight: 500; color:steelblue">CoinPort.</span>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto text-center">
+            <li class="nav-item active">
+              <a class="nav-link js-scroll-trigger">
+                &#x26FD;:
+              </a>
+            </li>
             <li class="nav-item">
               <a class="nav-link js-scroll-trigger">
-                <h5 style='color: grey'>Gas:</h5>Standard: {{standard}} | Fast: {{fast}} | Instant: {{instant}}
+                Standard: {{standard}} | Fast: {{fast}} | Instant: {{instant}}
               </a>
             </li>
           </ul>
@@ -135,9 +140,11 @@
               label: 'Asset Allocation',
               data: {{ pie_values | safe }},
               backgroundColor: [
-                'rgb(255, 99, 132)',
-                'rgb(54, 162, 235)',
-                'rgb(255, 205, 86)'
+                'rgb(39, 39, 39)',
+                'rgb(212, 170, 125)',
+                'rgb(144, 169, 183)',
+                'rgb(210, 216, 179)',
+                'rgb(114, 14, 7)',
               ],
               hoverOffset: 4
             }]
