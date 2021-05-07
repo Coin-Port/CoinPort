@@ -51,15 +51,18 @@ def get_pool_balance_zapper(address: str) -> dict:
 
     for protocol in protocols_with_pools:
         with request.urlopen('https://api.zapper.fi/v1/protocols/%s/balances?addresses[]=%s&network=ethereum&api_key=%s' % (protocol, address, zapper_api_key)) as url:
-            data = data.append(json.loads(url.read().decode()))
-    
+            data.append(json.loads(url.read().decode())[address]["products"][0])
+
     for pool in data:
-        balances[0] += pool["balanceUSD"]
-        to_append = {"symbol" : pool["symbol"], "balanceUSD" : pool["balanceUSD"]}
-        for token in pool["tokens"]:
-            balance_symbol = "balance" + token["symbol"]
-            to_append[balance_symbol] = token["balance"]
-        balances.append(to_append)
+        if "assets" in pool:
+            for asset in pool["assets"]:
+                balances[0] += asset["balanceUSD"]
+                to_append = {"symbol" : asset["symbol"], "balanceUSD" : asset["balanceUSD"]}
+                if "tokens" in asset:
+                    for token in asset["tokens"]:
+                        balance_symbol = "balance" + token["symbol"]
+                        to_append[balance_symbol] = token["balance"]
+                balances.append(to_append)
     
     return balances
         
@@ -75,7 +78,7 @@ def get_pool_protocols_zapper(address: str) -> list:
             data = network["protocols"]
             break
     for protocol in data:
-        if "tags" in protocol.keys() and "liquidity-pool" in protocol["tags"]: protocols_with_pools.append(protocol["protocol"])
+        if "meta" in protocol.keys() and "tags" in protocol["meta"].keys() and "liquidity-pool" in protocol["meta"]["tags"]: protocols_with_pools.append(protocol["protocol"])
     
     return protocols_with_pools
 
