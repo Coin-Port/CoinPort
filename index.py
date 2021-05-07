@@ -40,6 +40,27 @@ def pie_builder(address: str):
             pie_list.append(tuple([token, float(pie_dict[token][1])]))
     return pie_list
 
+def value_builder(address: str):
+    my_transactions = get_transactions(address)
+    start = int(my_transactions[0]['timeStamp']) - 3600  # first transaction
+    end = int(curr_time())
+    hist_bal = get_historical_balance(address, my_transactions, start, end)
+    # pnl = get_pnl(hist_bal, start, end) #pnl function
+    value_list = []
+    for time in hist_bal:
+        temp = unix_to_readable(time)
+        if end - start <= 86400:  # 1 day or less
+            spliced_time = temp[-8:-3]  # time only
+        elif end - start <= 518400:  # 60 days or less
+            spliced_time = temp[5:-3]  # mm/dd hh/mm
+        elif end - start <= 31556952:  # 1 year or less
+            spliced_time = temp[5:10]  # mm/dd
+        else:  # more than a year
+            spliced_time = temp[0:10]  # yy/mm/dd
+        #print(time, hist_bal[time])
+        value_list.append(tuple([spliced_time, float(hist_bal[time]['totalValue'])]))
+    return value_list
+
 @app.route('/', methods=['POST', 'GET'])
 def index():
     gas = requests.get(
@@ -51,14 +72,17 @@ def index():
     if request.method == "POST":
         address = request.form["address"]
         print(address)
-        pie_list = pie_builder(address)
+        value_list = value_builder(address)
         chart_list = chart_builder(address)
+        pie_list = pie_builder(address)
         # reverse chronlogical -> chronlogical and unzips
+        # total value labels and values
+        value_labels, amounts = [list(i) for i in list(zip(*value_list[::-1]))]
+        #Ether labels and values
         labels, values = [list(i) for i in list(zip(*chart_list[::-1]))]
         #Pie labels and values
         pie_labels, pie_values = [list(i) for i in list(zip(*pie_list))]
-        #print(labels, values)
-        return render_template('index.html', standard=int(standard), fast=int(fast), instant=int(instant), labels=labels, values=values, address=address, pie_labels=pie_labels, pie_values=pie_values)
+        return render_template('index.html', standard=int(standard), fast=int(fast), instant=int(instant), value_labels=value_labels, amounts=amounts, labels=labels, values=values, address=address, pie_labels=pie_labels, pie_values=pie_values)
     else:
         return render_template('landing.html')
 
