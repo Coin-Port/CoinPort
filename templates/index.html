@@ -99,6 +99,7 @@
             labels: {{ value_labels | safe }},
             datasets: [{
               label: 'Wallet Historical Value',
+              pointRadius: 2,
               backgroundColor: '#366a9d',
               borderColor: '#366a9d',
               data: {{ amounts | safe }},
@@ -110,7 +111,13 @@
           const config_value = {
             type: 'line',
             data: value_data,
-            options: {}
+            options: {
+              elements: {
+                line: {
+                  tension: 0.5
+                }
+              }
+            }
           };
 
 
@@ -133,6 +140,7 @@
             labels: {{ labels | safe }},
             datasets: [{
               label: 'Ether Amount',
+              pointRadius: 3,
               backgroundColor: '#6450f4',
               borderColor: '#6450f4',
               data: {{ values | safe }},
@@ -144,7 +152,13 @@
           const config_balance = {
             type: 'line',
             data: bal_data,
-            options: {}
+            options: {
+              elements: {
+                line: {
+                  tension: 0.5
+                }
+              }
+            }
           };
 
 
