@@ -13,7 +13,7 @@ datas = []
 #print(get_pool_balance_zapper(address2))
 #print("\n\n\n\n\n")
 address = '0x7E379d280AC80BF9e5D5c30578e165e6c690acC9'
-address = '0x7B88DF8AF7a283e3dc84A7Fd97Fde19cAbb90eD4'
+#address = '0x7B88DF8AF7a283e3dc84A7Fd97Fde19cAbb90eD4'
 
 my_txs = get_transactions(address)
 
@@ -30,7 +30,9 @@ with open('get_txn_ethscan_test.json', 'w') as f:
 
 print('and now im here')
 
-hist_bal = get_historical_balance(address, my_txs, start, end)
+balance = get_curr_balance(address)
+
+hist_bal = get_historical_balance(balance, my_txs, start, end)
 
 print('but not before im there')
 

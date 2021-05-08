@@ -10,9 +10,7 @@ address = '0x7e379d280ac80bf9e5d5c30578e165e6c690acc9'
 
 # Ether Balance builder
 
-def chart_builder(address: str, start: int, end: int):
-    my_transactions = get_transactions(address)
-    hist_bal = get_historical_balance(address, my_transactions, start, end)
+def chart_builder(hist_bal: dict, start: int, end: int):
     time_list = list(hist_bal.keys())
     # pnl = get_pnl(hist_bal, start, end) #pnl function
     tuple_list = []
@@ -31,19 +29,15 @@ def chart_builder(address: str, start: int, end: int):
             tuple([spliced_time, float(hist_bal[time]['ETH'][0])]))
     return tuple_list
 
-def pie_builder(address: str):
+def pie_builder(pie_dict: dict):
     pie_list = []
-    pie_dict = get_curr_balance(address)
+    #pie_dict = get_curr_balance(address)
     for token in list(pie_dict.keys()):
         if (float(pie_dict[token][1]) > 0.001):
             pie_list.append(tuple([token, float(pie_dict[token][1])]))
     return pie_list
 
-def value_builder(address: str, start: int, end: int):
-    my_transactions = get_transactions(address)
-    if not my_transactions or my_transactions == -1:
-        return my_transactions # error
-    hist_bal = get_historical_balance(address, my_transactions, start, end)
+def value_builder(hist_bal: dict, start: int, end: int):
     # pnl = get_pnl(hist_bal, start, end) #pnl function
     value_list = []
     for time in hist_bal:
@@ -57,7 +51,7 @@ def value_builder(address: str, start: int, end: int):
         else:  # more than a year
             spliced_time = temp[0:10]  # yy/mm/dd
         #print(time, hist_bal[time])
-        value_list.append(tuple([spliced_time, float(hist_bal[time]['totalValue'])]))
+        value_list.append(tuple([spliced_time, float(hist_bal[time]['total'])]))
     return value_list
 
 def get_gas():
@@ -92,17 +86,32 @@ def index():
 @app.route('/analyze', methods=['POST', 'GET'])
 def analyze():
     if request.method == "GET":
-        standard, fast, instant = get_gas()
         address = request.args.get('address')
         print('address: ' + address)
-        end = int(curr_time())
-        start = end - 86400 * 30 # 30 days
-        value_list = value_builder(address, start, end)
-        if not value_list or value_list == -1: # invalid address
-            flash('Invalid address, please try again.' if not value_list else 'Sorry, we ran into an error! Pease try again in a few minutes.')
+
+        #currency = request.args.get('currency')
+        currency = ''
+        currency_symbol = '$'
+
+        my_transactions = get_transactions(address)
+        if not my_transactions or my_transactions == -1:
+            flash('Invalid address, please try again.' if not my_transactions else 'Sorry, we ran into an error! Pease try again in a few minutes.')
             return render_template('landing.html')
-        chart_list = chart_builder(address, start, end)
-        pie_list = pie_builder(address)
+
+        end = int(curr_time())
+        start = end - 86400 * 30 # 30 days        
+
+        balance = get_curr_balance(address)
+        total_balance = round(sum(float(balance[i][1]) for i in balance),2)
+        
+        hist_bal = get_historical_balance(balance, address, my_transactions, start, end)
+        
+        standard, fast, instant = get_gas()
+        
+        value_list = value_builder(hist_bal, start, end)
+        chart_list = chart_builder(hist_bal, start, end)
+
+        pie_list = pie_builder(balance)
         # reverse chronlogical -> chronlogical and unzips
         # total value labels and values
         value_labels, amounts = [list(i) for i in list(zip(*value_list[::-1]))]
@@ -110,7 +119,29 @@ def analyze():
         labels, values = [list(i) for i in list(zip(*chart_list[::-1]))]
         #Pie labels and values
         pie_labels, pie_values = [list(i) for i in list(zip(*pie_list))]
-        return render_template('index.html', standard=int(standard), fast=int(fast), instant=int(instant), value_labels=value_labels, amounts=amounts, labels=labels, values=values, address=address, pie_labels=pie_labels, pie_values=pie_values)
+
+        pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent = get_pnl(hist_bal, start, end)
+
+        return render_template('index.html', 
+                                standard=int(standard), 
+                                fast=int(fast), 
+                                instant=int(instant), 
+                                value_labels=value_labels, 
+                                amounts=amounts, 
+                                labels=labels, 
+                                values=values, 
+                                address=address, 
+                                pie_labels=pie_labels, 
+                                pie_values=pie_values,
+                                currency_symbol=currency_symbol,
+                                currency_ticker=currency,
+                                total_balance=total_balance,
+                                total_pnl=pnl,
+                                pnl_percent=pnl_percent,
+                                pnl_color='limegreen' if pnl >= 0 else 'lightcoral',
+                                daily_avg_pnl=daily_avg_pnl,
+                                daily_avg_percent=daily_avg_pnl_percent
+                               )
 
 # don't think this does anything?
 @app.route('/index.html', methods=['POST', 'GET'])
@@ -127,7 +158,6 @@ def home():
 @app.route('/test.html')
 def test():
     return render_template('test.html')
-
 
 if __name__ == "__main__":
     app.secret_key = 'super duper secret key!'

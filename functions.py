@@ -231,18 +231,18 @@ def get_historical_fiat_worth_eth_only(historical_balance: dict, start: int, end
     return fiat_history
 
 # gonna have to rewrite this at some point lul
-def get_pnl(hist_fiat_balance: dict, start: int, end: int, values='totalValue') -> tuple: # (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent)    
+def get_pnl(hist_fiat_balance: dict, start: int, end: int, values='total') -> tuple: # (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent)    
     # generalizing for more than just ETH
     start_time = list(hist_fiat_balance)[-1]
     end_time = list(hist_fiat_balance)[0]
-    start_val = float(hist_fiat_balance[start_time]['totalValue'])
-    end_val = float(hist_fiat_balance[end_time]['totalValue'])
+    start_val = float(hist_fiat_balance[start_time][values])
+    end_val = float(hist_fiat_balance[end_time][values])
     
     pnl = end_val - start_val 
     pnl_percent = pnl / start_val * 100 # percentage gain over initial value
-    daily_avg_pnl = pnl / ((end_time - start_time) / 864000) # total pnl / number of days
+    daily_avg_pnl = pnl / ((end_time - start_time) / 86400) # total pnl / number of days
     daily_avg_pnl_percent = daily_avg_pnl / start_val * 100
-    return (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent)
+    return (round(i,2) for i in (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent))
 
 def get_transactions(address): # historical transactions with only Etherscan, this is an attempt to write it without dependency on Zapper.
     # this function essentially combines the normal, internal and erc20 transactions from Etherscan
@@ -413,7 +413,7 @@ def revert_txns(transactions: list, balance: dict, end: int, txn_index: int) -> 
         txn_index += 1
     return (txn_index, balance)
 
-def get_historical_balance(address: str, txns: list, start: int, end: int, currency='USD'):
+def get_historical_balance(balance: dict, address: str, txns: list, start: int, end: int, currency='USD'):
     # example output:
     # {
     #   start: {'ETH': [3.14159, 4536.2348], 'LINK': [2.71828, 294.34332], 'DAI': [1.618033, 1.618129]},
@@ -422,7 +422,7 @@ def get_historical_balance(address: str, txns: list, start: int, end: int, curre
     #   end: ...
     # }
 
-    balance = get_curr_balance(address)
+    #balance = get_curr_balance(address)
     historical_balance = {}
     txn_index = 0
 
@@ -453,20 +453,20 @@ def get_historical_balance(address: str, txns: list, start: int, end: int, curre
        
     reverted = revert_txns(txns, balance, end, 0) # revert transactions until we reach the end of our interval from the present
     txn_index, historical_balance[end] = reverted[0], reverted[1]
-    historical_balance[end]['totalValue'] = sum([0 if coin == 'totalValue' else historical_balance[end][coin][1] for coin in historical_balance[end]])
+    historical_balance[end]['total'] = sum([0 if coin == 'total' else historical_balance[end][coin][1] for coin in historical_balance[end]])
 
     for time, index in zip(range(end - interval, start - interval, -interval), range(len(historical_prices['ETH']))): # reverse chronological in variable interval
         # historical_balance[time] = historical_balance[time + interval].copy() # current balance is temporarily equivalent to prior balance
         historical_balance[time] = {}
         for coin in historical_balance[time + interval]:
-            if coin != 'totalValue':
+            if coin != 'total':
                 historical_balance[time][coin] = historical_balance[time + interval][coin].copy() # copy all the lists to not modify original
             else:
-                historical_balance[time]['totalValue'] = historical_balance[time + interval][coin]
+                historical_balance[time]['total'] = historical_balance[time + interval][coin]
         reverted = revert_txns(txns, historical_balance[time], time, txn_index)
         txn_index, historical_balance[time] = reverted[0], reverted[1]
         for coin in historical_balance[time]:
-            if coin != 'totalValue':
+            if coin != 'total':
                 if coin not in historical_prices:
                     if coin.lower() in coingecko_coin_list:
                         historical_prices[coin] = get_price_history_interval_list(coin.lower(), start - interval // 2, end + interval // 2, currency)[::-1]
@@ -475,7 +475,7 @@ def get_historical_balance(address: str, txns: list, start: int, end: int, curre
                 index2 = index
                 while index2 >= len(historical_prices[coin]): index2 -= 1 # temporary fix
                 historical_balance[time][coin][1] = historical_balance[time][coin][0] * Decimal(historical_prices[coin][index2])
-        historical_balance[time]['totalValue'] = sum([0 if coin == 'totalValue' else historical_balance[time][coin][1] for coin in historical_balance[time]])
+        historical_balance[time]['total'] = sum([0 if coin == 'total' else historical_balance[time][coin][1] for coin in historical_balance[time]])
     
     return historical_balance
 
@@ -492,7 +492,7 @@ def get_historical_fiat_worth(historical_balance: dict, start: int, end: int, cu
                 else:
                     price_histories[coin] = [[time, 0] for time, _ in price_histories['ETH']]
             fiat_history[time][coin] = price_histories[coin][index][1] * float(historical_balance[time][coin])
-        fiat_history[time]['TotalValue'] = sum(fiat_history[time].values())
+        fiat_history[time]['total'] = sum(fiat_history[time].values())
     return price_histories
 '''
 
