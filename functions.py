@@ -302,6 +302,9 @@ def get_transactions(address): # historical transactions with only Etherscan, th
 
     for txn in normal_txns_list + internal_txns_list + erc20_txns_list:
         hashes.add((int(txn['timeStamp']), txn['hash'])) # using timestamp to sort chronlogically
+    
+    for txn in normal_txns_list + internal_txns_list + erc20_txns_list:
+        hashes.add((int(txn['timeStamp']), txn['hash'])) # using timestamp to sort chronlogically
 
     hashes = list(h[1] for h in sorted(list(hashes))) # hashes in chronlogical order
 
@@ -349,10 +352,10 @@ def get_transactions(address): # historical transactions with only Etherscan, th
 
     for hash in internal_txns:
         tx_parsed = parsed_tx(internal_txns[hash], tx_type='internal')
-        if txns[hash]: # txns[hash] != 0
-            txns[hash]['subTransactions'].append(tx_parsed)
+        if txns[hash.strip()]: # txns[hash] != 0
+            txns[hash.strip()]['subTransactions'].append(tx_parsed)
         else:
-            txns[hash] = tx_parsed
+            txns[hash.strip()] = tx_parsed
 
     for hash in erc20_txns:
         tx = erc20_txns[hash]

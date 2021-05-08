@@ -98,6 +98,7 @@
 
       </div>
       <div class="mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
+        <h5 style='color: white'>Fiat Value</h5>
         <div style="height:85%;">
         <canvas id="value_chart"></canvas>
         </div>
@@ -106,7 +107,7 @@
             labels: {{ value_labels | safe }},
             datasets: [
               {
-                label: 'address USD value',
+                label: 'total',
                 pointRadius: 2,
                 backgroundColor: '#366a9d',
                 borderColor: '#366a9d',
@@ -142,6 +143,7 @@
     <!-- Second row -->
     <div class="d-md-flex flex-md-equal w-100 my-md-3 pl-md-3">
       <div class="mr-md-3 pt-3 pt-md-4 px-3 px-md-5 text-center text-white overflow-hidden">
+        <h5>Token Balances</h5>
         <canvas id="balance_chart"></canvas>
         <script>
           // <block:setup:1>
@@ -177,8 +179,9 @@
           );
         </script>
       </div>
-      <div class="bg-light mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
+      <div class="bg-dark mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
         <div style="width:55%; margin: auto; padding-bottom: 10px">
+        <h5 style="color:white">Asset Allocation</h5>
         <canvas id="pie_chart"></canvas>
         <script>
           const pie_data = {
