@@ -52,7 +52,10 @@ def get_pool_balance_zapper(address: str) -> dict:
 
     for protocol in protocols_with_pools:
         with request.urlopen('https://api.zapper.fi/v1/protocols/%s/balances?addresses[]=%s&network=ethereum&api_key=%s' % (protocol, address, zapper_api_key)) as url:
-            data.append(json.loads(url.read().decode())[address]["products"][0])
+            data.append(json.loads(url.read().decode())[address.lower()]["products"])
+    
+    if (len(data)==0): return [0]
+    data = data[0]
 
     for pool in data:
         if "assets" in pool:
@@ -231,12 +234,15 @@ def get_historical_fiat_worth_eth_only(historical_balance: dict, start: int, end
     return fiat_history
 
 # gonna have to rewrite this at some point lul
+#Yeah there are a lot of /0 erros here, I put a case at the top that just returns a tuple of 0s if a /0 would happen
 def get_pnl(hist_fiat_balance: dict, start: int, end: int, values='total') -> tuple: # (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent)    
     # generalizing for more than just ETH
     start_time = list(hist_fiat_balance)[-1]
     end_time = list(hist_fiat_balance)[0]
     start_val = float(hist_fiat_balance[start_time][values])
     end_val = float(hist_fiat_balance[end_time][values])
+
+    if (start_val == 0): start_val = 1
     
     pnl = end_val - start_val 
     pnl_percent = pnl / start_val * 100 # percentage gain over initial value

@@ -1,7 +1,7 @@
 import requests
 from flask import Flask, render_template, request, flash
 from flask_bootstrap import Bootstrap
-from functions import get_transactions, get_curr_balance, get_historical_balance, get_pnl, get_price_history_interval, unix_to_readable
+from functions import get_staked_zapper, get_pool_balance_zapper, get_transactions, get_curr_balance, get_historical_balance, get_pnl, get_price_history_interval, unix_to_readable
 from time import time as curr_time
 
 app = Flask(__name__)
@@ -105,6 +105,10 @@ def analyze():
         total_balance = round(sum(float(balance[i][1]) for i in balance),2)
         
         hist_bal = get_historical_balance(balance, address, my_transactions, start, end)
+
+        staked_balance = get_staked_zapper(address)
+
+        pool_balance = get_pool_balance_zapper(address)
         
         standard, fast, instant = get_gas()
         
@@ -140,7 +144,9 @@ def analyze():
                                 pnl_percent=pnl_percent,
                                 pnl_color='limegreen' if pnl >= 0 else 'lightcoral',
                                 daily_avg_pnl=daily_avg_pnl,
-                                daily_avg_percent=daily_avg_pnl_percent
+                                daily_avg_percent=daily_avg_pnl_percent,
+                                staked_balance=staked_balance,
+                                pool_balance=pool_balance
                                )
 
 # don't think this does anything?
