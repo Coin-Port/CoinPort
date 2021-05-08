@@ -5,6 +5,7 @@ from coin_list import coingecko_coin_list
 from coin_list import supported_protocols as zapper_supported_protocols
 from datetime import datetime
 from decimal import Decimal
+from cryptoaddress import EthereumAddress
 
 #address = '0x7E379d280AC80BF9e5D5c30578e165e6c690acC9' # my address that i was testing
 #address = '0x145c692ea0B7D8dD26F0eD6230b2fC6c44EffdA1' # random address from the list that JC sent
@@ -65,8 +66,6 @@ def get_pool_balance_zapper(address: str) -> dict:
                 balances.append(to_append)
     
     return balances
-        
-    
 
 #Helper function for get_pool_balance_zapper(), used to find what protocols we have to loop over
 def get_pool_protocols_zapper(address: str) -> list:
@@ -272,22 +271,32 @@ def get_transactions(address): # historical transactions with only Etherscan, th
     # ) 
     # it is returned in chronlogical order, i.e. txns[i+1]['timeStamp'] >= txns[i]['timeStamp']
     
+    try:
+        EthereumAddress(address)
+    except:
+        return 0 # invalid address
+    
     def get_txn_type(tx_type):
         parsed_txs = {}
-        with request.urlopen('https://api.etherscan.io/api?module=account&action=%s&address=%s&startblock=0&endblock=99999999&sort=asc&apikey=%s' % (tx_type, address, ethscan_api_key)) as url: # historical transactions from etherscan
-            txns = json.loads(url.read().decode()) # chronological order
-            if not bool(txns['status']):
-                print('error fetching %s, returned status 0' % (tx_type))
-                return False
-            elif bool(txns['status']):
-                return txns['result'] # list of dictionaries
-            else:
-                print('error fetching %s, no data returned' % (tx_type))
-                return False
-        
+        try:
+            with request.urlopen('https://api.etherscan.io/api?module=account&action=%s&address=%s&startblock=0&endblock=99999999&sort=asc&apikey=%s' % (tx_type, address, ethscan_api_key)) as url: # historical transactions from etherscan
+                txns = json.loads(url.read().decode()) # chronological order
+                if txns['result'] == 'Max rate limit reached':
+                    return 0
+                else:
+                    return txns['result']
+        except:
+            return -2 # service unavailable or some other error
+
     normal_txns_list = get_txn_type('txlist')
     internal_txns_list = get_txn_type('txlistinternal')
     erc20_txns_list = get_txn_type('tokentx')
+
+    if -2 in (normal_txns_list, internal_txns_list, erc20_txns_list):
+        return -1 # something's unavailable
+
+    if not normal_txns_list and not internal_txns_list and not erc20_txns_list:
+        return -1 # api limit reached
 
     hashes = set() # all unique txn hashes
 

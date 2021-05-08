@@ -18,6 +18,13 @@
   <!-- Custom styles -->
   <link href="/static/css/product.css" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static',filename='index.css') }}">
+
+  <style>
+    body {
+      background-color: rgb(35,35,35);
+    }
+  </style>
+
 </head>
 
 <body>
@@ -77,7 +84,7 @@
       <br><br>
       <div class="col-md-8 mx-auto pb-3">
         {% block content %}
-        <form action="" method="POST" class="form-inline col-lg-6 offset-lg-3">
+        <form action="/analyze" method="GET" class="form-inline col-lg-6 offset-lg-3">
           <input name="address" class="form-control col-md-8 mr-sm-2" style="border-radius: 0 !important;" type="text" placeholder={{address}} aria-label="Search">
           <button class="btn col-md-3 my-2 my-sm-0 btn-wrap-text" style="border-radius: 0 !important; color: #6450f4; border-color: #6450f4;" type="submit">Analyze</button>
         </form>
@@ -97,13 +104,15 @@
         <script>
           const value_data = {
             labels: {{ value_labels | safe }},
-            datasets: [{
-              label: 'Wallet Historical Value',
-              pointRadius: 2,
-              backgroundColor: '#366a9d',
-              borderColor: '#366a9d',
-              data: {{ amounts | safe }},
-            }]
+            datasets: [
+              {
+                label: 'address USD value',
+                pointRadius: 2,
+                backgroundColor: '#366a9d',
+                borderColor: '#366a9d',
+                data: {{ amounts | safe }},
+              }
+            ]
           };
           // </block:setup>
 
@@ -139,7 +148,7 @@
           const bal_data = {
             labels: {{ labels | safe }},
             datasets: [{
-              label: 'Ether Amount',
+              label: 'ETH balance',
               pointRadius: 3,
               backgroundColor: '#6450f4',
               borderColor: '#6450f4',
@@ -208,12 +217,29 @@
 
 
 
-    <footer class="mt-auto bg-light">
+    <footer class="mt-auto bg-dark">
       <div class="container">
-        <p class="m-0 text-center text-black">© CoinPort 2021</p>
-        <p class="m-0 text-center text-black">Powered by the <a href='https://zapper.fi/'>Zapper</a>, Etherscan.io and CoinGecko APIs</p>
+        <p class="m-0 text-center text-white">© CoinPort 2021</p>
+        <div style="line-height: 25%;"><br></div>
+        <p class="m-0 text-center text-white" style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
+          Powered by 
+          <a href="https://zapper.fi/" target="_blank">
+            <img style="height: 30px" src="static/darkmode_logos/zapper.png"> 
+          </a>
+          <a href="https://www.covalenthq.com/" target="_blank">
+            <img style="height: 30px" src="static/darkmode_logos/covalent.png"> 
+          </a>
+          <a href="https://etherscan.io/" target="_blank">
+            <img style="height: 30px" src="static/darkmode_logos/etherscan.png"> 
+          </a>
+          <a href="https://www.coingecko.com/" target="_blank">
+            <img style="height: 30px" src="static/darkmode_logos/coingecko.png">
+          </a>
+        </p>
       </div>
+      <div style="line-height: 30%;"><br></div>
     </footer>
+
 
 
     <script src="static/js/nextparticle.js"></script>
