@@ -155,7 +155,7 @@ def analyze():
 
         end = int(curr_time())
         start = end - 86400 * int(time_variable) # 30 days
-        print(start)
+        #print(start)
 
         balance = get_curr_balance(address)
         total_balance = round(sum(float(balance[i][1]) for i in balance),2)
@@ -163,7 +163,6 @@ def analyze():
         hist_bal = get_historical_balance(balance, address, my_transactions, start, end)
 
         staked_balance = get_staked_zapper(address)
-
         pool_balance = get_pool_balance_zapper(address)
 
         standard, fast, instant = get_gas()
@@ -198,21 +197,21 @@ def analyze():
             if 'ETH' in i or 'total' in i:
                 all_tokens.remove(i)
 
-        print(all_tokens)
+        #print(all_tokens)
 
         top_3_tokens = []
-        
+
         for _ in range(3):
             if len(all_tokens) != 0:
                 max_token = max(all_tokens)
                 top_3_tokens.append(max_token[1])
                 all_tokens.remove(max_token)
 
-        print(top_3_tokens)
+        #print(top_3_tokens)
 
         token1, token2, token3 = top_3_tokens
 
-        print(token1, token2, token3)
+        #print(token1, token2, token3)
         #Ether labels and values
         labels, values = [list(i) for i in list(zip(*chart_list[::-1]))]
         #Pie labels and values
@@ -224,7 +223,7 @@ def analyze():
                                 standard=int(standard),
                                 fast=int(fast),
                                 instant=int(instant),
-                                time_labels=time_labels, 
+                                time_labels=time_labels,
                                 total_vals=fiat_amounts['total'],
                                 ETH_vals=fiat_amounts['ETH'],
                                 token1=token1,
@@ -246,8 +245,8 @@ def analyze():
                                 pnl_color='limegreen' if pnl >= 0 else 'lightcoral',
                                 daily_avg_pnl=daily_avg_pnl,
                                 daily_avg_percent=daily_avg_pnl_percent,
-                                staked_balance=staked_balance,
-                                pool_balance=pool_balance
+                                staked_balance=round(staked_balance[0], 2),
+                                pool_balance=round(pool_balance[0], 2)
                                )
 
 # don't think this does anything?
