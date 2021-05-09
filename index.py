@@ -108,6 +108,7 @@ def index():
 
 @app.route('/analyze', methods=['POST', 'GET'])
 def analyze():
+    start_time = curr_time()
     if request.method == "GET":
         address = request.args.get('address')
         time_interval = request.args.get('times')
@@ -177,8 +178,6 @@ def analyze():
             if 'ETH' in i or 'total' in i:
                 all_tokens.remove(i)
 
-        print(all_tokens)
-
         top_3_tokens = []
         
         for _ in range(3):
@@ -187,11 +186,11 @@ def analyze():
                 top_3_tokens.append(max_token[1])
                 all_tokens.remove(max_token)
 
-        print(top_3_tokens)
+        #print(top_3_tokens)
 
         token1, token2, token3 = top_3_tokens
 
-        print(token1, token2, token3)
+        print('top tokens:', token1, token2, token3)
 
         #Ether labels and values
         labels, values = [list(i) for i in list(zip(*chart_list[::-1]))]
@@ -200,6 +199,7 @@ def analyze():
 
         pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent = get_pnl(hist_bal, start, end)
 
+        print('took %d seconds' % (curr_time() - start_time))
         return render_template('index.html',
                                 standard=int(standard),
                                 fast=int(fast),
