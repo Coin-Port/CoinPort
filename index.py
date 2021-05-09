@@ -10,6 +10,27 @@ address = '0x7e379d280ac80bf9e5d5c30578e165e6c690acc9'
 
 # Ether Balance builder
 
+fiat_graph_colors = [
+    'f94144',
+    'f3722c',
+    'f8961e',
+    'f9c74f',
+    '90be6d',
+    '43aa8b',
+    '577590',
+    '264653',
+    '2a9d8f',
+    'e9c46a',
+    'f4a261',
+    'e76f51',
+    'e63946',
+    'f1faee',
+    'a8dadc',
+    '457b9d',
+    '1d3557'
+]
+
+
 def chart_builder(hist_bal: dict, start: int, end: int):
     time_list = list(hist_bal.keys())
     # pnl = get_pnl(hist_bal, start, end) #pnl function
@@ -37,21 +58,23 @@ def pie_builder(pie_dict: dict):
             pie_list.append(tuple([token, float(pie_dict[token][1])]))
     return pie_list
 
+def time_splicer(time: int, time_interval: int) -> str:
+    temp = unix_to_readable(time)
+    if time_interval <= 86400:  # 1 day or less
+        return temp[-8:-3]  # time only
+    elif time_interval <= 5184000:  # 60 days or less
+        return temp[5:-3]  # mm/dd hh/mm
+    elif time_interval <= 31556952:  # 1 year or less
+        return temp[5:10]  # mm/dd
+    else:  # more than a year
+        return temp[0:10]  # yy/mm/dd
+
 def value_builder(hist_bal: dict, start: int, end: int):
     # pnl = get_pnl(hist_bal, start, end) #pnl function
     value_list = []
     for time in hist_bal:
-        temp = unix_to_readable(time)
-        if end - start <= 86400:  # 1 day or less
-            spliced_time = temp[-8:-3]  # time only
-        elif end - start <= 5184000:  # 60 days or less
-            spliced_time = temp[5:-3]  # mm/dd hh/mm
-        elif end - start <= 31556952:  # 1 year or less
-            spliced_time = temp[5:10]  # mm/dd
-        else:  # more than a year
-            spliced_time = temp[0:10]  # yy/mm/dd
-        #print(time, hist_bal[time])
-        value_list.append(tuple([spliced_time, float(hist_bal[time]['total'])]))
+        for coin in hist_bal[time]:
+            value_list.append(tuple([time_splicer(time, end-start), float(hist_bal[time][coin][1])]))
     return value_list
 
 def get_gas():
@@ -131,7 +154,46 @@ def analyze():
         pie_list = pie_builder(balance)
         # reverse chronlogical -> chronlogical and unzips
         # total value labels and values
-        value_labels, amounts = [list(i) for i in list(zip(*value_list[::-1]))]
+        #value_labels, amounts = [list(i) for i in list(zip(*value_list[::-1]))]
+        #time_labels, amounts = [list(i) for i in list(zip(*value_list[::-1]))]
+
+        col_index = 0
+
+        time_labels = [time_splicer(t, end-start) for t in list(hist_bal.keys())[::-1]] # keys are times in epoch time
+        fiat_amounts = {'total': []}
+
+        for time in list(hist_bal.keys())[::-1]:
+            for coin in hist_bal[time]:
+                if coin not in fiat_amounts:
+                    fiat_amounts[coin] = []
+                coin_bal = round(float(hist_bal[time][coin][1]),3)
+                fiat_amounts[coin].append(coin_bal)
+                if len(fiat_amounts[coin]) == len(fiat_amounts['total']):
+                    fiat_amounts['total'][-1] += coin_bal
+                else:
+                    fiat_amounts['total'].append(coin_bal)
+
+        all_tokens = list([(fiat_amounts[coin][-1], coin) for coin in fiat_amounts])
+
+        for i in all_tokens:
+            if 'ETH' in i or 'total' in i:
+                all_tokens.remove(i)
+
+        print(all_tokens)
+
+        top_3_tokens = []
+        
+        for _ in range(3):
+            if len(all_tokens) != 0:
+                max_token = max(all_tokens)
+                top_3_tokens.append(max_token[1])
+                all_tokens.remove(max_token)
+
+        print(top_3_tokens)
+
+        token1, token2, token3 = top_3_tokens
+
+        print(token1, token2, token3)
         #Ether labels and values
         labels, values = [list(i) for i in list(zip(*chart_list[::-1]))]
         #Pie labels and values
@@ -143,10 +205,17 @@ def analyze():
                                 standard=int(standard),
                                 fast=int(fast),
                                 instant=int(instant),
-                                value_labels=value_labels,
-                                amounts=amounts,
+                                time_labels=time_labels, 
+                                total_vals=fiat_amounts['total'],
+                                ETH_vals=fiat_amounts['ETH'],
+                                token1=token1,
+                                token2=token2,
+                                token3=token3,
+                                token1_vals=fiat_amounts[token1],
+                                token2_vals=fiat_amounts[token2],
+                                token3_vals=fiat_amounts[token3],
                                 labels=labels,
-                                values=values,
+                                values=values, # token balances
                                 address=address,
                                 pie_labels=pie_labels,
                                 pie_values=pie_values,

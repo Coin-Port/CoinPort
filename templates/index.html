@@ -105,7 +105,7 @@
       <div class="bg-dark mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
         <h2 style="color: white">Net Worth: {{currency_symbol}}{{total_balance}}{{currency_ticker}}</h2>
         <h4 style="color: white">
-          P&L: <strong style="color:{{pnl_color}}">{{currency_symbol}}{{total_pnl}}{{currency_ticker}}</strong> P&L Percent: <strong style="color:{{pnl_color}}">{{pnl_percent}}%</strong>
+          P&L: <strong style="color:{{pnl_color}}">{{currency_symbol}}{{total_pnl}}{{currency_ticker}}</strong> | <strong style="color:{{pnl_color}}">{{pnl_percent}}%</strong>        
         </h4>
       </div>
       <div class="mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
@@ -115,15 +115,43 @@
         </div>
         <script>
           const value_data = {
-            labels: {{ value_labels | safe }},
+            labels: {{ time_labels | safe }},
             datasets: [
-              {
-                label: 'total',
-                pointRadius: 2,
-                backgroundColor: '#366a9d',
-                borderColor: '#366a9d',
-                data: {{ amounts | safe }},
-              }
+                        {
+                          label: 'total',
+                          pointRadius: 1,
+                          backgroundColor: '#f94144',
+                          borderColor: '#f94144',
+                          data: {{ total_vals | safe }},
+                        },
+                        {
+                          label: 'ETH',
+                          pointRadius: 1,
+                          backgroundColor: '#a8dadc',
+                          borderColor: '#a8dadc',
+                          data: {{ ETH_vals | safe }},
+                        },
+                        {
+                          label: 'LINK',
+                          pointRadius: 1,
+                          backgroundColor: "#f3722c",
+                          borderColor: '#f3722c',
+                          data: {{ token1_vals | safe }}
+                        },
+                        {
+                          label: 'aDai',
+                          pointRadius: 2,
+                          backgroundColor: '#f3722c',
+                          borderColor: '#f3722c',
+                          data: {{ token2_vals | safe }},
+                        },
+                        {
+                          label: 'DPI',
+                          pointRadius: 2,
+                          backgroundColor: '#f8961e',
+                          borderColor: '#f8961e',
+                          data: {{ token3_vals | safe }},
+                        }
             ]
           };
           // </block:setup>

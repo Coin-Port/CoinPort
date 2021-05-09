@@ -235,12 +235,14 @@ def get_historical_fiat_worth_eth_only(historical_balance: dict, start: int, end
 
 # gonna have to rewrite this at some point lul
 #Yeah there are a lot of /0 erros here, I put a case at the top that just returns a tuple of 0s if a /0 would happen
-def get_pnl(hist_fiat_balance: dict, start: int, end: int, values='total') -> tuple: # (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent)    
+def get_pnl(hist_fiat_balance: dict, start: int, end: int) -> tuple: # (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent)    
     # generalizing for more than just ETH
     start_time = list(hist_fiat_balance)[-1]
     end_time = list(hist_fiat_balance)[0]
-    start_val = float(hist_fiat_balance[start_time][values])
-    end_val = float(hist_fiat_balance[end_time][values])
+    start_bal = hist_fiat_balance[start_time]
+    end_bal = hist_fiat_balance[end_time]
+    start_val = float(sum(start_bal[coin][1] for coin in start_bal))
+    end_val = float(sum(end_bal[coin][1] for coin in end_bal))
 
     if (start_val == 0): start_val = 1
     
@@ -459,48 +461,25 @@ def get_historical_balance(balance: dict, address: str, txns: list, start: int, 
        
     reverted = revert_txns(txns, balance, end, 0) # revert transactions until we reach the end of our interval from the present
     txn_index, historical_balance[end] = reverted[0], reverted[1]
-    historical_balance[end]['total'] = sum([0 if coin == 'total' else historical_balance[end][coin][1] for coin in historical_balance[end]])
-
+    
     for time, index in zip(range(end - interval, start - interval, -interval), range(len(historical_prices['ETH']))): # reverse chronological in variable interval
         # historical_balance[time] = historical_balance[time + interval].copy() # current balance is temporarily equivalent to prior balance
         historical_balance[time] = {}
         for coin in historical_balance[time + interval]:
-            if coin != 'total':
-                historical_balance[time][coin] = historical_balance[time + interval][coin].copy() # copy all the lists to not modify original
-            else:
-                historical_balance[time]['total'] = historical_balance[time + interval][coin]
+            historical_balance[time][coin] = historical_balance[time + interval][coin].copy() # copy all the lists to not modify original
         reverted = revert_txns(txns, historical_balance[time], time, txn_index)
         txn_index, historical_balance[time] = reverted[0], reverted[1]
         for coin in historical_balance[time]:
-            if coin != 'total':
-                if coin not in historical_prices:
-                    if coin.lower() in coingecko_coin_list:
-                        historical_prices[coin] = get_price_history_interval_list(coin.lower(), start - interval // 2, end + interval // 2, currency)[::-1]
-                    else:
-                        historical_prices[coin] = [0 for _ in range(len(historical_prices['ETH']))] # set value to 0 if not found
-                index2 = index
-                while index2 >= len(historical_prices[coin]): index2 -= 1 # temporary fix
-                historical_balance[time][coin][1] = historical_balance[time][coin][0] * Decimal(historical_prices[coin][index2])
-        historical_balance[time]['total'] = sum([0 if coin == 'total' else historical_balance[time][coin][1] for coin in historical_balance[time]])
+            if coin not in historical_prices:
+                if coin.lower() in coingecko_coin_list:
+                    historical_prices[coin] = get_price_history_interval_list(coin.lower(), start - interval // 2, end + interval // 2, currency)[::-1]
+                else:
+                    historical_prices[coin] = [0 for _ in range(len(historical_prices['ETH']))] # set value to 0 if not found
+            index2 = index
+            while index2 >= len(historical_prices[coin]): index2 -= 1 # temporary fix
+            historical_balance[time][coin][1] = historical_balance[time][coin][0] * Decimal(historical_prices[coin][index2])
     
     return historical_balance
-
-''' gonna replace this by just putting the fiat value beside the raw value instead of having to do this whole thing
-def get_historical_fiat_worth(historical_balance: dict, start: int, end: int, currency: str) -> dict:
-    price_histories = {'ETH': get_price_history_interval('ETH', start, end, currency)}
-    fiat_history = {}
-    for time, index in zip(historical_balance, range(len(historical_balance))):
-        fiat_history[time] = {}
-        for coin in historical_balance[time]:
-            if coin not in price_histories:
-                if coin in coingecko_coin_list:
-                    price_histories[coin] = get_price_history_interval(coin, start, end, currency)
-                else:
-                    price_histories[coin] = [[time, 0] for time, _ in price_histories['ETH']]
-            fiat_history[time][coin] = price_histories[coin][index][1] * float(historical_balance[time][coin])
-        fiat_history[time]['total'] = sum(fiat_history[time].values())
-    return price_histories
-'''
 
 def human_time_hist_bal(hist_bal: dict):
     return {unix_to_readable(time):bal for time, bal in zip(hist_bal.keys(), hist_bal.values())} 
