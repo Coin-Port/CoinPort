@@ -278,6 +278,9 @@ def get_transactions(address): # historical transactions with only Etherscan, th
     #   }, ...
     # ) 
     # it is returned in chronlogical order, i.e. txns[i+1]['timeStamp'] >= txns[i]['timeStamp']
+
+    if address == '':
+        return 0
     
     try:
         EthereumAddress(address)
