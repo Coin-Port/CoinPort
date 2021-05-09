@@ -5,7 +5,7 @@ from coin_list import coingecko_coin_list
 from coin_list import supported_protocols as zapper_supported_protocols
 from datetime import datetime
 from decimal import Decimal
-from cryptoaddress import EthereumAddress
+import cryptoaddress
 
 #address = '0x7E379d280AC80BF9e5D5c30578e165e6c690acC9' # my address that i was testing
 #address = '0x145c692ea0B7D8dD26F0eD6230b2fC6c44EffdA1' # random address from the list that JC sent
@@ -283,8 +283,8 @@ def get_transactions(address): # historical transactions with only Etherscan, th
         return 0
     
     try:
-        EthereumAddress(address)
-    except:
+        cryptoaddress.EthereumAddress(address)
+    except ValueError:
         return 0 # invalid address
     
     def get_txn_type(tx_type):
