@@ -221,7 +221,7 @@
           );
         </script>
       </div>
-      <div class="bg-dark mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
+      <div class="mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
         <div style="width:55%; margin: auto; padding-bottom: 10px">
         <h5 style="color:white">Asset Allocation</h5>
         <canvas id="pie_chart"></canvas>
@@ -232,11 +232,11 @@
               label: 'Asset Allocation',
               data: {{ pie_values | safe }},
               backgroundColor: [
-                'rgb(39, 39, 39)',
-                'rgb(212, 170, 125)',
-                'rgb(144, 169, 183)',
-                'rgb(210, 216, 179)',
-                'rgb(114, 14, 7)',
+                '#f94144',
+                '#f3722c',
+                '#f8961e',
+                '#f9c74f',
+                '#90be6d',
               ],
               hoverOffset: 4
             }]
