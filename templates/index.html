@@ -102,13 +102,14 @@
 
     <!-- First row -->
     <div class="d-md-flex flex-md-equal w-100 my-md-3 pl-md-3">
-      <div class="bg-dark mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
-        <h2 style="color: white">Net Worth: {{currency_symbol}}{{total_balance}}{{currency_ticker}}</h2>
-        <h4 style="color: white">
+      <div class="mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
+        <h1 style="color: white">Net Worth: {{currency_symbol}}{{total_balance}}{{currency_ticker}}</h1>
+        <hr size="2" width="95%" color="white">
+        <p style="color: white">
           Last 30 Days P&L: <strong style="color:{{pnl_color}}">{{currency_symbol}}{{total_pnl}}{{currency_ticker}}</strong> | <strong style="color:{{pnl_color}}">{{pnl_percent}}%</strong>
-        </h4>
-        <h4 style="color: white">Amount Staked: {{currency_symbol}}{{staked_balance}}{{currency_ticker}}</h4>
-        <h4 style="color: white">Amount Pooled: {{currency_symbol}}{{pool_balance}}{{currency_ticker}}</h4>
+        </p>
+        <p style="color: white">Amount Staked: {{currency_symbol}}{{staked_balance}}{{currency_ticker}}</p>
+        <p style="color: white">Amount Pooled: {{currency_symbol}}{{pool_balance}}{{currency_ticker}}</p>
       </div>
       <div class="mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
         <h5 style='color: white'>Fiat Value</h5>
