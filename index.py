@@ -3,10 +3,31 @@ from flask import Flask, render_template, request, flash
 from flask_bootstrap import Bootstrap
 from functions import get_staked_zapper, get_pool_balance_zapper, get_transactions, get_curr_balance, get_historical_balance, get_pnl, get_price_history_interval, unix_to_readable
 from time import time as curr_time
+import random
 
 app = Flask(__name__)
 
 address = '0x7e379d280ac80bf9e5d5c30578e165e6c690acc9'
+
+fiat_graph_colors = [
+    'f94144',
+    'f3722c',
+    'f8961e',
+    'f9c74f',
+    '90be6d',
+    '43aa8b',
+    '577590',
+    '264653',
+    '2a9d8f',
+    'e9c46a',
+    'f4a261',
+    'e76f51',
+    'e63946',
+    'f1faee',
+    'a8dadc',
+    '457b9d',
+    '1d3557'
+]
 
 # Ether Balance builder
 
@@ -29,7 +50,6 @@ fiat_graph_colors = [
     '457b9d',
     '1d3557'
 ]
-
 
 def chart_builder(hist_bal: dict, start: int, end: int):
     time_list = list(hist_bal.keys())
@@ -150,7 +170,6 @@ def analyze():
 
         value_list = value_builder(hist_bal, start, end)
         chart_list = chart_builder(hist_bal, start, end)
-
         pie_list = pie_builder(balance)
         # reverse chronlogical -> chronlogical and unzips
         # total value labels and values

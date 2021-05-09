@@ -9,6 +9,25 @@ address2 = '0x7e379d280ac80bf9e5d5c30578e165e6c690acc9'
 
 datas = []
 
+list_of_tuples = []
+
+print(max(list_of_tuples))
+
+exit()
+
+'''staked = get_staked_zapper(address2)
+pool = get_pool_balance_zapper(address2)
+
+with open('pool.json', 'w') as f:
+    f.write(str(pool))
+    f.close()
+
+with open('staked.json', 'w') as f:
+    f.write(str(staked))
+    f.close()
+
+exit()'''
+
 #print(get_staked_zapper(address2))
 #print(get_pool_balance_zapper(address2))
 #print("\n\n\n\n\n")
@@ -32,7 +51,7 @@ print('and now im here')
 
 balance = get_curr_balance(address)
 
-hist_bal = get_historical_balance(balance, my_txs, start, end)
+hist_bal = get_historical_balance(balance, address, my_txs, start, end)
 
 print('but not before im there')
 

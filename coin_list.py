@@ -86,3 +86,6 @@ coingecko_coin_list = {coin['symbol']: {i:coin[i] for i in ['id', 'name', 'platf
 
 with open('coin_list.json', 'w') as f:
    dump(coingecko_coin_list, f)
+
+
+  
