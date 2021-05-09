@@ -134,8 +134,8 @@ def analyze():
             return render_template('landing.html')
 
         end = int(curr_time())
-        start = end - 86400 * int(time_variable) # 30 days
-        #print(start)
+        days = 30
+        start = end - 86400 * days # 86400 seconds per day (approximately)
 
         balance = get_curr_balance(address)
         total_balance = round(sum(float(balance[i][1]) for i in balance),2)
@@ -146,8 +146,8 @@ def analyze():
         pool_balance = get_pool_balance_zapper(address)
 
         standard, fast, instant = get_gas()
-
-        value_list = value_builder(hist_bal, start, end)
+        
+        #value_list = value_builder(hist_bal, start, end)
         chart_list = chart_builder(hist_bal, start, end)
         pie_list = pie_builder(balance)
         # reverse chronlogical -> chronlogical and unzips
@@ -177,21 +177,22 @@ def analyze():
             if 'ETH' in i or 'total' in i:
                 all_tokens.remove(i)
 
-        #print(all_tokens)
+        print(all_tokens)
 
         top_3_tokens = []
-
+        
         for _ in range(3):
             if len(all_tokens) != 0:
                 max_token = max(all_tokens)
                 top_3_tokens.append(max_token[1])
                 all_tokens.remove(max_token)
 
-        #print(top_3_tokens)
+        print(top_3_tokens)
 
         token1, token2, token3 = top_3_tokens
 
-        #print(token1, token2, token3)
+        print(token1, token2, token3)
+
         #Ether labels and values
         labels, values = [list(i) for i in list(zip(*chart_list[::-1]))]
         #Pie labels and values
