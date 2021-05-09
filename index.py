@@ -31,26 +31,6 @@ fiat_graph_colors = [
 
 # Ether Balance builder
 
-fiat_graph_colors = [
-    'f94144',
-    'f3722c',
-    'f8961e',
-    'f9c74f',
-    '90be6d',
-    '43aa8b',
-    '577590',
-    '264653',
-    '2a9d8f',
-    'e9c46a',
-    'f4a261',
-    'e76f51',
-    'e63946',
-    'f1faee',
-    'a8dadc',
-    '457b9d',
-    '1d3557'
-]
-
 def chart_builder(hist_bal: dict, start: int, end: int):
     time_list = list(hist_bal.keys())
     # pnl = get_pnl(hist_bal, start, end) #pnl function
