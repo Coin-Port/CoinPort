@@ -131,7 +131,7 @@ def analyze():
     if request.method == "GET":
         address = request.args.get('address')
         time_interval = request.args.get('times')
-        time_variable = 7
+        time_variable = 30
         if time_interval == "1wk":
             time_variable = 7
         elif time_interval == "1m":

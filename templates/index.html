@@ -88,12 +88,12 @@
           <input name="address" class="form-control col-md-8 mr-sm-2" style="border-radius: 0 !important;" type="text" placeholder={{address}} aria-label="Search">
           <button class="btn col-md-3 my-2 my-sm-0 btn-wrap-text" style="border-radius: 0 !important; color: #6450f4; border-color: #6450f4;" type="submit">Analyze</button>
 
-          <select class=" col-md-3 form-select form-select-sm" id="times" name="times" aria-label=".form-select-sm example">
+          <!--<select class=" col-md-3 form-select form-select-sm" id="times" name="times" aria-label=".form-select-sm example">
             <option selected>Change time interval</option>
             <option value="1wk">1 Week</option>
             <option value="1m">1 Month</option>
             <option value="2m">2 Months</option>
-          </select>
+          </select>-->
 
         </form>
         {% endblock %}
@@ -105,7 +105,7 @@
       <div class="bg-dark mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
         <h2 style="color: white">Net Worth: {{currency_symbol}}{{total_balance}}{{currency_ticker}}</h2>
         <h4 style="color: white">
-          P&L: <strong style="color:{{pnl_color}}">{{currency_symbol}}{{total_pnl}}{{currency_ticker}}</strong> | <strong style="color:{{pnl_color}}">{{pnl_percent}}%</strong>        
+          Last 30 Days P&L: <strong style="color:{{pnl_color}}">{{currency_symbol}}{{total_pnl}}{{currency_ticker}}</strong> | <strong style="color:{{pnl_color}}">{{pnl_percent}}%</strong>        
         </h4>
       </div>
       <div class="mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
@@ -141,8 +141,8 @@
                         {
                           label: 'aDai',
                           pointRadius: 2,
-                          backgroundColor: '#f3722c',
-                          borderColor: '#f3722c',
+                          backgroundColor: '#e76f51',
+                          borderColor: '#e76f51',
                           data: {{ token2_vals | safe }},
                         },
                         {
