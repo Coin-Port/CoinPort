@@ -28,28 +28,59 @@
     max-width: 100%;
     max-height: 35%
     }
+    
+    #analyze_button:hover {
+      background: rgb(50,50,50);
+    }
+
 </style>
 </head>
 <body>
 <br>
-<h1 id="title" style="top: 10%; text-align: center; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; color: steelblue; font-size: 72px;">CoinPort.</h1>
+<h1 id="title" style="top: 10%; text-align: center; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; color: steelblue; font-size: 72px;">
+  CoinPort.
+</h1>
 
 <video autoplay muted loop id="banner_video">
   <source src="{{ url_for('static',filename='banner_darkmode.mp4') }}" type="video/mp4">
   Your browser does not support HTML5 video.
 </video>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br> <!--i didnt know what else to do lol-->
 
 <div class="col-md-8 mx-auto pb-3">
+  <h4 style="color: whitesmoke; text-align: center; font-weight: 300;">
+    <a style="text-decoration: none; font-weight: 400;" href="https://coinport.fi">CoinPort </a> offers detailed and insightful data 
+    <br> on the past and present of your DeFi related finances, 
+    <br> all in one convenient place.
+  </h4>
+  <br style="line-height: 0%;">
   {% block content %}
   <form action="/analyze" method="GET" class="form-inline col-lg-6 offset-lg-3">
     <input name="address" class="form-control col-md-8 mr-sm-2" style="border-radius: 0 !important;" type="text" placeholder="Enter an Ethereum address" aria-label="Search">
-    <button class="btn col-md-3 my-2 my-sm-0 btn-wrap-text" style="border-radius: 0 !important; color: #6450f4; border-color: #6450f4;" type="submit">Analyze</button>
+    <button class="btn col-md-3 my-2 my-sm-0 btn-wrap-text" id='analyze_button' style="border-radius: 0 !important; color:steelblue; border-color: steelblue; font-weight: 500;" type="submit">Analyze</button>
   </form>
+  <br>  
   {% endblock %}
 
 </div>
+
+<p class="m-0 text-center text-white" style="font-size: 22px; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
+    Powered by 
+    <a href="https://zapper.fi/" target="_blank">
+      <img style="height: 34px" src="static/darkmode_logos/zapper.png">
+    </a>
+    <a href="https://www.covalenthq.com/" target="_blank">
+      <img style="height: 34px" src="static/darkmode_logos/covalent.png">
+    </a>
+    <a href="https://etherscan.io/" target="_blank">
+      <img style="height: 34px" src="static/darkmode_logos/etherscan.png">
+    </a>
+    <a href="https://www.coingecko.com/" target="_blank">
+      <img style="height: 34px" src="static/darkmode_logos/coingecko.png">
+    </a>
+</p>
+
 <div class="container" id="flashed_messages">
   {% for message in get_flashed_messages() %}
   <div class="alert alert-warning" style='max-width: 40%; left: 27.5%'>
