@@ -84,8 +84,5 @@ from urllib import request
 
 coingecko_coin_list = {coin['symbol']: {i:coin[i] for i in ['id', 'name', 'platforms']} for coin in loads(request.urlopen('https://api.coingecko.com/api/v3/coins/list?include_platform=true').read().decode())}
 
-with open('coin_list.json', 'w') as f:
-   dump(coingecko_coin_list, f)
-
 
   
