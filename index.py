@@ -81,13 +81,25 @@ def index():
         #Pie labels and values
         pie_labels, pie_values = [list(i) for i in list(zip(*pie_list))]
         return render_template('index.html', standard=int(standard), fast=int(fast), instant=int(instant), value_labels=value_labels, amounts=amounts, labels=labels, values=values, address=address, pie_labels=pie_labels, pie_values=pie_values)
-    '''        
+    '''
 
 @app.route('/analyze', methods=['POST', 'GET'])
 def analyze():
     if request.method == "GET":
         address = request.args.get('address')
+        time_interval = request.args.get('times')
+        time_variable = 7
+        if time_interval == "1wk":
+            time_variable = 7
+        elif time_interval == "1m":
+            time_variable = 30
+        elif time_interval == "2m":
+            time_variable = 60
+        else:
+            time_variable = 7
+
         print('address: ' + address)
+        #print(time_variable, time_interval)
 
         #currency = request.args.get('currency')
         currency = ''
@@ -99,19 +111,20 @@ def analyze():
             return render_template('landing.html')
 
         end = int(curr_time())
-        start = end - 86400 * 30 # 30 days        
+        start = end - 86400 * int(time_variable) # 30 days
+        print(start)
 
         balance = get_curr_balance(address)
         total_balance = round(sum(float(balance[i][1]) for i in balance),2)
-        
+
         hist_bal = get_historical_balance(balance, address, my_transactions, start, end)
 
         staked_balance = get_staked_zapper(address)
 
         pool_balance = get_pool_balance_zapper(address)
-        
+
         standard, fast, instant = get_gas()
-        
+
         value_list = value_builder(hist_bal, start, end)
         chart_list = chart_builder(hist_bal, start, end)
 
@@ -126,16 +139,16 @@ def analyze():
 
         pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent = get_pnl(hist_bal, start, end)
 
-        return render_template('index.html', 
-                                standard=int(standard), 
-                                fast=int(fast), 
-                                instant=int(instant), 
-                                value_labels=value_labels, 
-                                amounts=amounts, 
-                                labels=labels, 
-                                values=values, 
-                                address=address, 
-                                pie_labels=pie_labels, 
+        return render_template('index.html',
+                                standard=int(standard),
+                                fast=int(fast),
+                                instant=int(instant),
+                                value_labels=value_labels,
+                                amounts=amounts,
+                                labels=labels,
+                                values=values,
+                                address=address,
+                                pie_labels=pie_labels,
                                 pie_values=pie_values,
                                 currency_symbol=currency_symbol,
                                 currency_ticker=currency,
