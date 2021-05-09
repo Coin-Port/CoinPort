@@ -1,3 +1,3 @@
 # Coin Port
 
-https://coinport.herokuapp.com/
+https://coinport.fi/
