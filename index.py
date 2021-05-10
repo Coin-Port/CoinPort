@@ -4,29 +4,24 @@ from flask_bootstrap import Bootstrap
 from functions import get_staked_zapper, get_pool_balance_zapper, get_transactions, get_curr_balance, get_historical_balance, get_pnl, get_price_history_interval, unix_to_readable
 from time import time as curr_time
 import random
+from coin_list import coingecko_coin_list
 
 app = Flask(__name__)
+app.secret_key = 'super duper secret key!'
 
 address = '0x7e379d280ac80bf9e5d5c30578e165e6c690acc9'
 
 fiat_graph_colors = [
-    'f94144',
-    'f3722c',
-    'f8961e',
-    'f9c74f',
-    '90be6d',
-    '43aa8b',
-    '577590',
-    '264653',
-    '2a9d8f',
-    'e9c46a',
-    'f4a261',
-    'e76f51',
-    'e63946',
-    'f1faee',
-    'a8dadc',
-    '457b9d',
-    '1d3557'
+    '72539C', # royal purple
+    '7B3250', # quinacdridone magenta
+    'EE6352', # fire opal
+    '127F84', # teal
+    '1CFEBA', # sea green crayola
+    '6874E8', # neon blue
+    '42B9D1', # maximum blue
+    'EDAE49', # sunray
+    'E5E059', # straw
+    'DDF2EB'  # honeydew
 ]
 
 # Ether Balance builder
@@ -163,20 +158,34 @@ def analyze():
 
         for time in list(hist_bal.keys())[::-1]:
             for coin in hist_bal[time]:
-                if coin not in fiat_amounts:
-                    fiat_amounts[coin] = []
-                coin_bal = round(float(hist_bal[time][coin][1]),3)
-                fiat_amounts[coin].append(coin_bal)
-                if len(fiat_amounts[coin]) == len(fiat_amounts['total']):
-                    fiat_amounts['total'][-1] += coin_bal
-                else:
-                    fiat_amounts['total'].append(coin_bal)
+                if coin.lower() in coingecko_coin_list: # has price
+                    if coin not in fiat_amounts:
+                        fiat_amounts[coin] = []
+                    coin_bal = round(float(hist_bal[time][coin][1]),3)
+                    fiat_amounts[coin].append(coin_bal)
+                    if len(fiat_amounts[coin]) == len(fiat_amounts['total']):
+                        fiat_amounts['total'][-1] += coin_bal
+                    else:
+                        fiat_amounts['total'].append(coin_bal)
 
+        parsed_fiat_amounts = []
+        
+        for coin in fiat_amounts:
+            if col_index == len(fiat_graph_colors):
+                col_index = 0
+            parsed_fiat_amounts.append((coin, fiat_amounts[coin], '#' + fiat_graph_colors[col_index]))
+            col_index += 1
+        
+        print('nothing to see here')
+        
+        '''
         all_tokens = list([(fiat_amounts[coin][-1], coin) for coin in fiat_amounts])
-
+        
+        
         for i in all_tokens:
             if 'ETH' in i or 'total' in i:
                 all_tokens.remove(i)
+
 
         top_3_tokens = []
         
@@ -190,7 +199,7 @@ def analyze():
 
         token1, token2, token3 = top_3_tokens
 
-        print('top tokens:', token1, token2, token3)
+        print('top tokens:', token1, token2, token3)'''
 
         #Ether labels and values
         labels, values = [list(i) for i in list(zip(*chart_list[::-1]))]
@@ -198,6 +207,8 @@ def analyze():
         pie_labels, pie_values = [list(i) for i in list(zip(*pie_list))]
 
         pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent = get_pnl(hist_bal, start, end)
+
+        wallet_balance = total_balance
 
         print('took %d seconds' % (curr_time() - start_time))
         return render_template('index.html',
@@ -207,13 +218,8 @@ def analyze():
                                 time_labels=time_labels,
                                 total_vals=fiat_amounts['total'],
                                 ETH_vals=fiat_amounts['ETH'],
-                                token1=token1,
-                                token2=token2,
-                                token3=token3,
-                                token1_vals=fiat_amounts[token1],
-                                token2_vals=fiat_amounts[token2],
-                                token3_vals=fiat_amounts[token3],
                                 labels=labels,
+                                token_fiat_vals=parsed_fiat_amounts, # historical token balances
                                 values=values, # token balances
                                 address=address,
                                 pie_labels=pie_labels,
@@ -226,6 +232,7 @@ def analyze():
                                 pnl_color='limegreen' if pnl >= 0 else 'lightcoral',
                                 daily_avg_pnl=daily_avg_pnl,
                                 daily_avg_percent=daily_avg_pnl_percent,
+                                wallet_balance=wallet_balance,
                                 staked_balance=round(staked_balance[0], 2),
                                 pool_balance=round(pool_balance[0], 2)
                                )
