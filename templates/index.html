@@ -117,60 +117,25 @@
         <p style="color: white; font-size: medium;">Amount Pooled: {{currency_symbol}}{{pool_balance}}{{currency_ticker}}</p>
       </div>
       <div class="mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
-        <h5 style='color: white'>Fiat Value</h5>
+        <h5 style='color: white'>Fiat Values</h5>
         <div style="height:85%;">
         <canvas id="value_chart"></canvas>
         </div>
         <script>
           const value_data = {
-            labels: {{ time_labels | safe }},
-            datasets: [
-                        {% for coin, value, color in token_fiat_vals %}
-                          {
-                            label: '{{ coin }}',
-                            pointRadius: 1,
-                            backgroundColor: '{{ color }}',
-                            borderColor: '{{ color }}',
-                            data: {{ value | safe }}
-                          },
-                        {% endfor %}
-                        /*{
-                          label: 'total',
-                          pointRadius: 1,
-                          backgroundColor: '#f94144',
-                          borderColor: '#f94144',
-                          data: {{ total_vals | safe }},
-                        },
-                        {
-                          label: 'ETH',
-                          pointRadius: 1,
-                          backgroundColor: '#a8dadc',
-                          borderColor: '#a8dadc',
-                          data: {{ ETH_vals | safe }},
-                        },
-                        {
-                          label: 'LINK',
-                          pointRadius: 1,
-                          backgroundColor: "#f3722c",
-                          borderColor: '#f3722c',
-                          data: {{ token1_vals | safe }}
-                        },
-                        {
-                          label: 'aDai',
-                          pointRadius: 2,
-                          backgroundColor: '#43aa8b',
-                          borderColor: '#43aa8b',
-                          data: {{ token2_vals | safe }},
-                        },
-                        {
-                          label: 'DPI',
-                          pointRadius: 2,
-                          backgroundColor: '#577590',
-                          borderColor: '#577590',
-                          data: {{ token3_vals | safe }},
-                        },*/
-            ]
-          };
+                labels: {{ time_labels | safe }},
+                datasets: [
+                            {% for coin, value, color in token_fiat_vals %}
+                              {
+                                label: '{{ coin }}',
+                                pointRadius: 1,
+                                backgroundColor: '{{ color }}',
+                                borderColor: '{{ color }}',
+                                data: {{ value | safe }}
+                              },
+                            {% endfor %}
+                          ]
+                };
           // </block:setup>
 
           // <block:config:0>
@@ -204,6 +169,20 @@
         <script>
           // <block:setup:1>
           const bal_data = {
+            labels: {{ time_labels | safe }},
+            datasets: [
+                        {% for coin, value, color in token_raw_vals %}
+                          {
+                            label: '{{ coin }}',
+                            pointRadius: 1,
+                            backgroundColor: '{{ color }}',
+                            borderColor: '{{ color }}',
+                            data: {{ value | safe }}
+                          },
+                        {% endfor %}
+                      ]
+            };
+          /*const bal_data = {
             labels: {{ labels | safe }},
             datasets: [{
               label: 'ETH balance',
@@ -212,7 +191,7 @@
               borderColor: '#6450f4',
               data: {{ values | safe }},
             }]
-          };
+          };*/
           // </block:setup>
 
           // <block:config:0>
@@ -237,7 +216,7 @@
       </div>
       <div class="mr-md-3 pt-3 px-3 px-md-5 text-center overflow-hidden">
         <div style="width:55%; margin: auto; padding-bottom: 10px">
-        <h5 style="color:white">Asset Allocation</h5>
+        <h5 style="color:white">Current Asset Allocation</h5>
         <canvas id="pie_chart"></canvas>
         <script>
           const pie_data = {

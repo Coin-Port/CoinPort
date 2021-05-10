@@ -389,10 +389,13 @@ def get_curr_balance(address: str, chain_id=1, currency='USD'):
         data = json.loads(url.read().decode())
     data = data['data']['items']
 
+    calls_made = 0
+
     for item in data:
         amount = Decimal(item['balance']) / 10**int(item['contract_decimals'])
         symbol = item['contract_ticker_symbol'].lower()
-        if symbol in coingecko_coin_list:
+        if symbol in coingecko_coin_list and calls_made < 60: # max 60 calls per minute on coingecko
+            calls_made += 1
             coin_id = coingecko_coin_list[symbol]['id']
             price = json.loads(request.urlopen("https://api.coingecko.com/api/v3/simple/price?ids=%s&vs_currencies=%s" % (coin_id, currency)).read().decode())[coin_id][currency.lower()]
         else:

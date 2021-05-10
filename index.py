@@ -11,7 +11,7 @@ app.secret_key = 'super duper secret key!'
 
 address = '0x7e379d280ac80bf9e5d5c30578e165e6c690acc9'
 
-fiat_graph_colors = [
+graph_colors = [
     '72539C', # royal purple
     '7B3250', # quinacdridone magenta
     'EE6352', # fire opal
@@ -155,14 +155,18 @@ def analyze():
 
         time_labels = [time_splicer(t, end-start) for t in list(hist_bal.keys())[::-1]] # keys are times in epoch time
         fiat_amounts = {'total': []}
+        raw_amounts = {}
 
         for time in list(hist_bal.keys())[::-1]:
             for coin in hist_bal[time]:
                 if coin.lower() in coingecko_coin_list: # has price
                     if coin not in fiat_amounts:
                         fiat_amounts[coin] = []
+                    if coin not in raw_amounts and coin != 'total':
+                        raw_amounts[coin] = []
                     coin_bal = round(float(hist_bal[time][coin][1]),3)
                     fiat_amounts[coin].append(coin_bal)
+                    raw_amounts[coin].append(round(float(hist_bal[time][coin][0]),3))
                     if len(fiat_amounts[coin]) == len(fiat_amounts['total']):
                         fiat_amounts['total'][-1] += coin_bal
                     else:
@@ -171,11 +175,19 @@ def analyze():
         parsed_fiat_amounts = []
         
         for coin in fiat_amounts:
-            if col_index == len(fiat_graph_colors):
+            if col_index == len(graph_colors):
                 col_index = 0
-            parsed_fiat_amounts.append((coin, fiat_amounts[coin], '#' + fiat_graph_colors[col_index]))
+            parsed_fiat_amounts.append((coin, fiat_amounts[coin], '#' + graph_colors[col_index]))
             col_index += 1
+
+        parsed_raw_amounts = []
         
+        for coin in raw_amounts:
+            if col_index == len(graph_colors):
+                col_index = 0
+            parsed_raw_amounts.append((coin, raw_amounts[coin], '#' + graph_colors[col_index]))
+            col_index += 1
+
         print('nothing to see here')
         
         '''
@@ -220,6 +232,7 @@ def analyze():
                                 ETH_vals=fiat_amounts['ETH'],
                                 labels=labels,
                                 token_fiat_vals=parsed_fiat_amounts, # historical token balances
+                                token_raw_vals=parsed_raw_amounts, 
                                 values=values, # token balances
                                 address=address,
                                 pie_labels=pie_labels,

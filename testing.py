@@ -7,11 +7,10 @@ from urllib import request
 address = '0xEf40c39851b6669dad6f73dE7578760201968908'
 address2 = '0x7e379d280ac80bf9e5d5c30578e165e6c690acc9'
 
-datas = []
+data = [0,1,2,3,4,5,6,7,8,9]
 
-list_of_tuples = []
+print(data[:6])
 
-print(max(list_of_tuples))
 
 exit()
 
