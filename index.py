@@ -253,14 +253,17 @@ def analyze():
 # don't think this does anything?
 @app.route('/index.html', methods=['POST', 'GET'])
 def home():
-    if request.method == "GET":
+    return render_template('landing.html')
+    '''if request.method == "GET":
         address = request.args.get('address')
         print('address: ' + str(address))
         chart_list = chart_builder(address)
         labels, values = [list(i) for i in list(zip(*chart_list[::-1]))]
+
         return render_template('index.html', standard=int(standard), fast=int(fast), instant=int(instant), value_labels=value_labels, amounts=amounts, labels=labels, values=values, address=address, pie_labels=pie_labels, pie_values=pie_values)
     else:
-        return render_template('landing.html')
+        return render_template('landing.html')'''
+    
 
 @app.route('/test.html')
 def test():
