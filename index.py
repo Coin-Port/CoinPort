@@ -239,7 +239,7 @@ def analyze():
                                 pie_values=pie_values,
                                 currency_symbol=currency_symbol,
                                 currency_ticker=currency,
-                                total_balance=total_balance + round(staked_balance[0], 2) + round(pool_balance[0], 2),
+                                total_balance=round(total_balance+staked_balance[0]+pool_balance[0],2),
                                 total_pnl=pnl,
                                 pnl_percent=pnl_percent,
                                 pnl_color='limegreen' if pnl >= 0 else 'lightcoral',
