@@ -404,7 +404,7 @@ def get_curr_balance(address: str, chain_id=1, currency='USD'):
 
     return balance
 
-def revert_txns(transactions: list, balance: dict, end: int, txn_index: int) -> (int, dict): # returns new txn_index and balance
+def revert_txns(transactions: list, balance: dict, end: int, txn_index: int): # returns new txn_index and balance
     # reverts transactions from present until 'end', transactions are given reverse chronologically
     balance = balance.copy() #make a copy of balance to not modify original, but i think either could work
     while txn_index < len(transactions) and int(transactions[txn_index]['timeStamp']) >= end: # the balances would be the same if no transactions take place between the two times

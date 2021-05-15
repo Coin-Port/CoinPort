@@ -47,13 +47,16 @@
 </video>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
+
+
 <div class="col-md-8 mx-auto pb-3">
   <h4 style="color: whitesmoke; text-align: center; font-weight: 300;">
     <a style="text-decoration: none; font-weight: 400;" href="https://coinport.fi">CoinPort </a> offers detailed and insightful data 
     <br> on the past and present of your DeFi related finances, 
-    <br> all in one convenient place.
+    <br> all in one convenient place. 
   </h4>
-  <br style="line-height: 0%;">
+  <br>
+  
   {% block content %}
   <form action="/analyze" method="GET" class="form-inline col-lg-6 offset-lg-3">
     <input name="address" class="form-control col-md-8 mr-sm-2" style="border-radius: 0 !important;" type="text" placeholder="Enter an Ethereum address" aria-label="Search">
@@ -61,12 +64,27 @@
   </form>
   <br>  
   {% endblock %}
-  <h5 style="color: whitesmoke; text-align: center; font-weight: 300;">
-    Don't have an address? Try our <a href="https://coinport.fi/analyze?address=0x7E379d280AC80BF9e5D5c30578e165e6c690acC9" style="text-decoration: none;">demo address</a>.
-  </h5>
-</div>
 
-<p class="m-0 text-center text-white" style="font-size: 22px; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
+  <div class="container" id="flashed_messages">
+  {% for message in get_flashed_messages() %}
+  <div class="alert alert-warning" style='max-width: 40%; left: 27.5%'>
+      <button type="button" class="close" data-dismiss="alert" onclick="hide()">&times;</button>
+      {{ message }}
+  </div>
+  {% endfor %}
+
+  {% block page_content %}{% endblock %}
+  </div>
+
+  <h5 style="color: whitesmoke; text-align: center; font-weight: 300;">
+    Don't have an address? Try our <a href="https://coinport.fi/analyze?address=0x7E379d280AC80BF9e5D5c30578e165e6c690acC9" style="text-decoration: none;">demo</a>.
+  </h5>
+
+  <p style="color: whitesmoke; text-align: center; font-weight: 300;">
+    And check out our source code <a href="https://coinport.fi/analyze?address=0x7E379d280AC80BF9e5D5c30578e165e6c690acC9" style="text-decoration: none;">here</a>.
+  </p>
+
+  <p class="m-0 text-center text-white" style="font-size: 22px; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
     Powered by 
     <a href="https://zapper.fi/" target="_blank">
       <img style="height: 34px" src="static/darkmode_logos/zapper.png">
@@ -80,18 +98,7 @@
     <a href="https://www.coingecko.com/" target="_blank">
       <img style="height: 34px" src="static/darkmode_logos/coingecko.png">
     </a>
-</p>
-
-<br>
-<div class="container" id="flashed_messages">
-  {% for message in get_flashed_messages() %}
-  <div class="alert alert-warning" style='max-width: 40%; left: 27.5%'>
-      <button type="button" class="close" data-dismiss="alert" onclick="hide()">&times;</button>
-      {{ message }}
-  </div>
-  {% endfor %}
-
-  {% block page_content %}{% endblock %}
+  </p>
 </div>
 
 <script>

@@ -82,4 +82,4 @@ supported_protocols = {
 from json import loads, dump
 from urllib import request
 
-coingecko_coin_list = {coin['symbol']: {i:coin[i] for i in ['id', 'name', 'platforms']} for coin in loads(request.urlopen('https://api.coingecko.com/api/v3/coins/list?include_platform=true').read().decode())}
+coingecko_coin_list = {coin['symbol']: {time:coin[time] for time in ['id', 'name', 'platforms']} for coin in loads(request.urlopen('https://api.coingecko.com/api/v3/coins/list?include_platform=true').read().decode())}
