@@ -135,7 +135,7 @@ def get_curr_balance_eth_only(address: str) -> dict:
 
 # functions with _eth at the end are ETH only and don't support tokens
 # this was made because of some quirks with the Zapper APIs which don't allow us to support tokens yet
-def revert_txns_eth(transactions: list, balance: dict, end: int, txn_index: int) -> (int, dict): # returns new txn_index and balance
+def revert_txns_eth(transactions: list, balance: dict, end: int, txn_index: int) -> tuple: # returns new txn_index and balance
     # reverts transactions from present until 'end', transactions are given reverse chronologically
     balance = balance.copy() #make a copy of balance to not modify original, but i think either could work
     while txn_index < len(transactions) and int(transactions[txn_index]['timeStamp']) >= end: # the balances would be the same if no transactions take place between the two times
@@ -160,7 +160,7 @@ def revert_txns_eth(transactions: list, balance: dict, end: int, txn_index: int)
     return (txn_index, balance)
 
 def get_historical_balance_eth_only(address: str, transactions: list, start: int, end: int) -> dict: # only ETH
-    balance = get_curr_balance_eth(address)
+    balance = get_curr_balance_eth_only(address)
     historical_balance = {}
     txn_index = 0
 
@@ -384,8 +384,9 @@ def get_curr_balance(address: str, chain_id=1, currency='USD'):
     if chain_id not in [1, 137, 80001, 56, 43114, 43113, 250]:
         print('invalid chain id')
         return False
-
-    with request.urlopen("https://api.covalenthq.com/v1/%d/address/%s/balances_v2/?&key=%s" % (chain_id, address, covalent_api_key)) as url:
+    
+    # https://api.covalenthq.com/v1/1/address/0x7E379d280AC80BF9e5D5c30578e165e6c690acC9/balances_v2/?&key=ckey_6c3f3233e25f4ad1bfe6cfc2403
+    with request.urlopen(request.Request("https://api.covalenthq.com/v1/%d/address/%s/balances_v2/?&key=%s" % (chain_id, address, covalent_api_key), headers={'User-Agent': 'Mozilla/5.0'})) as url:
         data = json.loads(url.read().decode())
     data = data['data']['items']
 
@@ -450,7 +451,7 @@ def get_historical_balance(balance: dict, address: str, txns: list, start: int, 
         interval = 300 # 5 minute intervals
     elif end - start <= 7776000: # 90 days or less
         interval = 3600 # hourly intervals
-    else: # more than 60 days
+    else: # more than 90 days
         interval = 86400 # daily intervals
 
     '''

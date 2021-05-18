@@ -4,12 +4,21 @@ from cryptoaddress import EthereumAddress
 import json
 from urllib import request
 
+req = request.Request('https://api.covalenthq.com/v1/1/address/0x7E379d280AC80BF9e5D5c30578e165e6c690acC9/balances_v2/?&key=ckey_6c3f3233e25f4ad1bfe6cfc2403', headers={'User-Agent': 'Mozilla/5.0'})
+
+with request.urlopen(req) as url:
+        data = json.loads(url.read().decode())
+
+
+'''
 address = '0xEf40c39851b6669dad6f73dE7578760201968908'
 address2 = '0x7e379d280ac80bf9e5d5c30578e165e6c690acc9'
 
 data = [0,1,2,3,4,5,6,7,8,9]
 
-print(data[:6])
+print(data[:6])'''
+
+
 
 
 exit()

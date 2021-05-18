@@ -130,7 +130,7 @@ def analyze():
             return render_template('landing.html')
 
         end = int(curr_time())
-        days = 30
+        days = 90
         start = end - 86400 * days # 86400 seconds per day (approximately)
 
         balance = get_curr_balance(address)
