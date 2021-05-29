@@ -57,7 +57,7 @@ def time_splicer(time: int, time_interval: int) -> str:
     temp = unix_to_readable(time)
     if time_interval <= 86400:  # 1 day or less
         return temp[-8:-3]  # time only
-    elif time_interval <= 5184000:  # 60 days or less
+    elif time_interval <= 86400 * 30:  # 90 days or less
         return temp[5:-3]  # mm/dd hh/mm
     elif time_interval <= 31556952:  # 1 year or less
         return temp[5:10]  # mm/dd
@@ -79,27 +79,6 @@ def get_gas():
 @app.route('/', methods=['POST', 'GET'])
 def index():
     return render_template('landing.html')
-
-    '''if request.method == "GET":
-        address = request.args.get('address')
-        print('address: ' + address)
-        end = int(curr_time())
-        start = end - 86400 * 30 # 30 days
-        value_list = value_builder(address, start, end)
-        if not value_list or value_list == -1: # invalid address
-            flash('Invalid address, try again.' if not value_list else 'Internal error, please try again in a few minutes.')
-            return render_template('landing.html')
-        chart_list = chart_builder(address, start, end)
-        pie_list = pie_builder(address)
-        # reverse chronlogical -> chronlogical and unzips
-        # total value labels and values
-        value_labels, amounts = [list(i) for i in list(zip(*value_list[::-1]))]
-        #Ether labels and values
-        labels, values = [list(i) for i in list(zip(*chart_list[::-1]))]
-        #Pie labels and values
-        pie_labels, pie_values = [list(i) for i in list(zip(*pie_list))]
-        return render_template('index.html', standard=int(standard), fast=int(fast), instant=int(instant), value_labels=value_labels, amounts=amounts, labels=labels, values=values, address=address, pie_labels=pie_labels, pie_values=pie_values)
-    '''
 
 @app.route('/analyze', methods=['POST', 'GET'])
 def analyze():
@@ -130,7 +109,7 @@ def analyze():
             return render_template('landing.html')
 
         end = int(curr_time())
-        days = 90
+        days = 60
         start = end - 86400 * days # 86400 seconds per day (approximately)
 
         balance = get_curr_balance(address)
