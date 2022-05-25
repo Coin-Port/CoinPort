@@ -53,7 +53,7 @@ def get_pool_balance_zapper(address: str) -> dict:
     for protocol in protocols_with_pools:
         with request.urlopen('https://api.zapper.fi/v1/protocols/%s/balances?addresses[]=%s&network=ethereum&api_key=%s' % (protocol, address, zapper_api_key)) as url:
             data.append(json.loads(url.read().decode())[address.lower()]["products"])
-    
+
     if (len(data)==0): return [0]
     data = data[0]
 
@@ -67,7 +67,7 @@ def get_pool_balance_zapper(address: str) -> dict:
                         balance_symbol = "balance" + token["symbol"]
                         to_append[balance_symbol] = token["balance"]
                 balances.append(to_append)
-    
+
     return balances
 
 #Helper function for get_pool_balance_zapper(), used to find what protocols we have to loop over
@@ -81,13 +81,13 @@ def get_pool_protocols_zapper(address: str) -> list:
             break
     for protocol in data:
         if "meta" in protocol.keys() and "tags" in protocol["meta"].keys() and "liquidity-pool" in protocol["meta"]["tags"]: protocols_with_pools.append(protocol["protocol"])
-    
+
     return protocols_with_pools
 
 
 #Returns a list of dicts, a dict for each currency that contains in staking, but the first value is total staked balance
 #symbol: the symbol
-#balance: balance in crypto 
+#balance: balance in crypto
 #balanceUSD: balance of crypto in USD
 def get_staked_zapper(address: str) -> list:
     #There are 4 different protocols for staking so I combine all of them, balances_sub is a list of the balances for each protocol
@@ -101,16 +101,16 @@ def get_staked_zapper(address: str) -> list:
         with request.urlopen('https://api.zapper.fi/v1/staked-balance/%s?addresses[]=%s&network=ethereum&api_key=%s' % (protocols[protocol], address, zapper_api_key)) as url:
             data = json.loads(url.read().decode())
         data = data[address.lower()]
-        if data: 
+        if data:
             data = data[0]["tokens"]
             for token in data:
                 balances_sub.append({"symbol" : token["symbol"], "balance" : token["balance"], "balanceUSD" : token["balanceUSD"]})
-                if token["symbol"] in symbol_lookup.keys(): 
+                if token["symbol"] in symbol_lookup.keys():
                     symbol_lookup[token["symbol"]] = symbol_lookup[token["symbol"]].append(len(balances_sub)-1)
-                else: 
+                else:
                     symbol_lookup[token["symbol"]] = [len(balances_sub)-1] #dict of locations of occurence of a symbol
             balances_sub.sort(key = lambda k: k["symbol"])
-    
+
     for indices in symbol_lookup:
         temp_balance = balances_sub[symbol_lookup[indices][0]]
         for index in symbol_lookup[indices][1:]:
@@ -118,9 +118,9 @@ def get_staked_zapper(address: str) -> list:
             temp_balance["balanceUSD"] += balances_sub[index]["balanceUSD"]
         balances_main[0] += temp_balance["balanceUSD"]
         balances_main.append(temp_balance)
-    
+
     return balances_main
-    
+
 def get_curr_balance_eth_only(address: str) -> dict:
     with request.urlopen('https://api.zapper.fi/v1/balances/tokens?addresses[]=%s&api_key=%s' % (address, zapper_api_key)) as url:
         data = json.loads(url.read().decode())
@@ -165,7 +165,7 @@ def get_historical_balance_eth_only(address: str, transactions: list, start: int
     txn_index = 0
 
     # using time.time(), a Decimal may be passed in so this is just a precaution
-    end = int(end) 
+    end = int(end)
     start = int(start)
 
     # This is from the coingecko API documentation
@@ -174,11 +174,11 @@ def get_historical_balance_eth_only(address: str, transactions: list, start: int
     # 1 day from query time = 5 minute interval data
     # 1 - 90 days from query time = hourly data
     # above 90 days from query time = daily data (00:00 UTC)
-    
+
     if end - start <= 86400: # 1 day or less
         interval = 360 # 5-minutely intervals
     elif end - start <= 7776000: # 90 days or less
-        interval = 3600 # hourly intervals    
+        interval = 3600 # hourly intervals
     else: # more than 90 days
         interval = 86400 # daily intervals
 
@@ -189,7 +189,7 @@ def get_historical_balance_eth_only(address: str, transactions: list, start: int
         historical_balance[time] = historical_balance[time + interval].copy() # current balance is temporarily equivalent to prior balance
         reverted = revert_txns_eth(transactions, historical_balance[time], time, txn_index)
         txn_index, historical_balance[time] = reverted[0], reverted[1]
-    
+
     return historical_balance
 
 def get_price_history(coin_id: str, days: str, currency: str): # I don't think this function needs to be used but I'll keep it just in case
@@ -198,12 +198,12 @@ def get_price_history(coin_id: str, days: str, currency: str): # I don't think t
     if int(days) <= 60: # hourly price intervals for past 2 months
         interval = 'hourly'
     elif int(days) <= 1: # minute price interval for past day
-        interval = 'minutely' 
+        interval = 'minutely'
 
     with request.urlopen('https://api.coingecko.com/api/v3/coins/%s/market_chart?vs_currency=%s&days=%s&interval=%s' % (coin_id, currency, days, interval)) as url:
         data = json.loads(url.read().decode())
         return data
-        
+
 def get_price_history_interval(coin_symbol: str, start: int, end: int, currency: str):
     coin_id = coingecko_coin_list[coin_symbol.lower()]['id']
 
@@ -213,7 +213,7 @@ def get_price_history_interval(coin_symbol: str, start: int, end: int, currency:
     # 1 day from query time = 5 minute interval data
     # 1 - 90 days from query time = hourly data
     # above 90 days from query time = daily data (00:00 UTC)
-    
+
     with request.urlopen("https://api.coingecko.com/api/v3/coins/%s/market_chart/range?vs_currency=%s&from=%d&to=%d" % (coin_id, currency, start, end)) as url:
         return {int(time/1000):price for time, price in json.loads(url.read().decode())['prices']}
         # i is epoch time in milliseconds
@@ -223,11 +223,11 @@ def get_price_history_interval_list(coin_symbol: str, start: int, end: int, curr
     coin_id = coingecko_coin_list[coin_symbol.lower()]['id']
     with request.urlopen("https://api.coingecko.com/api/v3/coins/%s/market_chart/range?vs_currency=%s&from=%d&to=%d" % (coin_id, currency, start, end)) as url:
         return [price for _, price in json.loads(url.read().decode())['prices']]
-                
+
 def get_historical_fiat_worth_eth_only(historical_balance: dict, start: int, end: int, currency: str) -> dict:
     price_history = get_price_history_interval('ETH', start, end, currency)
     fiat_history = {}
-    for time, price in zip(historical_balance, price_history.values()): 
+    for time, price in zip(historical_balance, price_history.values()):
         # since the intervals are the same size and the beginning and end are close enough (if not the same)
         # soo.... I can just iterate through these two things side by side and not run into any trouble (hopefully)
         fiat_history[time] = {'ETH': historical_balance[time]['ETH'] * price}
@@ -235,7 +235,7 @@ def get_historical_fiat_worth_eth_only(historical_balance: dict, start: int, end
 
 # gonna have to rewrite this at some point lul
 #Yeah there are a lot of /0 erros here, I put a case at the top that just returns a tuple of 0s if a /0 would happen
-def get_pnl(hist_fiat_balance: dict, start: int, end: int) -> tuple: # (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent)    
+def get_pnl(hist_fiat_balance: dict, start: int, end: int) -> tuple: # (pnl, pnl_percent, daily_avg_pnl, daily_avg_pnl_percent)
     # generalizing for more than just ETH
     start_time = list(hist_fiat_balance)[-1]
     end_time = list(hist_fiat_balance)[0]
@@ -245,8 +245,8 @@ def get_pnl(hist_fiat_balance: dict, start: int, end: int) -> tuple: # (pnl, pnl
     end_val = float(sum(end_bal[coin][1] for coin in end_bal))
 
     if (start_val == 0): start_val = 1
-    
-    pnl = end_val - start_val 
+
+    pnl = end_val - start_val
     pnl_percent = pnl / start_val * 100 # percentage gain over initial value
     daily_avg_pnl = pnl / ((end_time - start_time) / 86400) # total pnl / number of days
     daily_avg_pnl_percent = daily_avg_pnl / start_val * 100
@@ -258,11 +258,11 @@ def get_transactions(address): # historical transactions with only Etherscan, th
     # will return a tuple of dicts structured like so:
     # (
     #   { 'hash': str (hash),
-    #     'timeStamp': int, 
+    #     'timeStamp': int,
     #     'type': str ('normal', 'internal', 'erc20', 'erc721')
     #     'value': Decimal (value / 1000000000000000000), # 0 if not ETH
-    #     'gas': Decimal (gasPrice / 1000000000000000000 * gasUsed), 
-    #     'txSuccessful': bool,    
+    #     'gas': Decimal (gasPrice / 1000000000000000000 * gasUsed),
+    #     'txSuccessful': bool,
     #     'direction': str ('incoming', 'outgoing'), # not gonna bother with the whole 'exchange' thing, doesn't really make a difference in my use case
     #     'subTransaction': [
     #                         { 'timeStamp': int,
@@ -276,17 +276,17 @@ def get_transactions(address): # historical transactions with only Etherscan, th
     #     'from': str (address),
     #     'to': str (address) # don't need these, but I'll keep them just because
     #   }, ...
-    # ) 
+    # )
     # it is returned in chronlogical order, i.e. txns[i+1]['timeStamp'] >= txns[i]['timeStamp']
 
     if address == '':
         return 0
-    
+
     try:
         cryptoaddress.EthereumAddress(address)
     except ValueError:
         return 0 # invalid address
-    
+
     def get_txn_type(tx_type):
         parsed_txs = {}
         try:
@@ -313,7 +313,7 @@ def get_transactions(address): # historical transactions with only Etherscan, th
 
     for txn in normal_txns_list + internal_txns_list + erc20_txns_list:
         hashes.add((int(txn['timeStamp']), txn['hash'])) # using timestamp to sort chronlogically
-    
+
     for txn in normal_txns_list + internal_txns_list + erc20_txns_list:
         hashes.add((int(txn['timeStamp']), txn['hash'])) # using timestamp to sort chronlogically
 
@@ -378,13 +378,13 @@ def get_transactions(address): # historical transactions with only Etherscan, th
 
     return list(txns.values()) # the dictionary keys were a ruse all along
 
-def get_curr_balance(address: str, chain_id=1, currency='USD'):
+def get_curr_balance(address: str, chain_id=1, currency='usd'):
     balance = {}
 
     if chain_id not in [1, 137, 80001, 56, 43114, 43113, 250]:
         print('invalid chain id')
         return False
-    
+
     # https://api.covalenthq.com/v1/1/address/0x7E379d280AC80BF9e5D5c30578e165e6c690acC9/balances_v2/?&key=ckey_6c3f3233e25f4ad1bfe6cfc2403
     with request.urlopen(request.Request("https://api.covalenthq.com/v1/%d/address/%s/balances_v2/?&key=%s" % (chain_id, address, covalent_api_key), headers={'User-Agent': 'Mozilla/5.0'})) as url:
         data = json.loads(url.read().decode())
@@ -463,12 +463,12 @@ def get_historical_balance(balance: dict, address: str, txns: list, start: int, 
     start = new_start + interval if new_start < start else new_start
     end = new_end - interval if new_end > end else new_end
     '''
-    
-    historical_prices = {'ETH': get_price_history_interval_list('ETH', start, end + interval, currency)[::-1]} 
-       
+
+    historical_prices = {'ETH': get_price_history_interval_list('ETH', start, end + interval, currency)[::-1]}
+
     reverted = revert_txns(txns, balance, end, 0) # revert transactions until we reach the end of our interval from the present
     txn_index, historical_balance[end] = reverted[0], reverted[1]
-    
+
     for time, index in zip(range(end - interval, start - interval, -interval), range(len(historical_prices['ETH']))): # reverse chronological in variable interval
         # historical_balance[time] = historical_balance[time + interval].copy() # current balance is temporarily equivalent to prior balance
         historical_balance[time] = {}
@@ -485,8 +485,8 @@ def get_historical_balance(balance: dict, address: str, txns: list, start: int, 
             index2 = index
             while index2 >= len(historical_prices[coin]): index2 -= 1 # temporary fix
             historical_balance[time][coin][1] = historical_balance[time][coin][0] * Decimal(historical_prices[coin][index2])
-    
+
     return historical_balance
 
 def human_time_hist_bal(hist_bal: dict):
-    return {unix_to_readable(time):bal for time, bal in zip(hist_bal.keys(), hist_bal.values())} 
+    return {unix_to_readable(time):bal for time, bal in zip(hist_bal.keys(), hist_bal.values())}
